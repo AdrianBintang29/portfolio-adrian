@@ -12,8 +12,8 @@ export default function HeroSection() {
           className="rounded-full w-full h-full object-cover"
         />
       </div>
-      <h1 className="text-5xl font-bold text-stone-800 font-[family-name:var(--font-playfair)]">Adrian Bintang</h1>
-      <p className="mt-2 text-gray-600">Mahasiswa Informatika | Fullstack Developer</p>
+      <h1 className="text-5xl font-bold text-stone-800 dark:text-white font-[family-name:var(--font-playfair)]">Adrian Bintang</h1>
+      <p className="mt-2 text-gray-600 dark:text-gray-300">Mahasiswa Informatika | Fullstack Developer</p>
       <div className="mt-6 flex justify-center gap-3">
         <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Next.js</span>
         <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Tailwind</span>
