@@ -2,7 +2,7 @@ export default function EducationSection() {
   return (
     <section id="education" className="max-w-2xl mx-6 sm:mx-auto mt-10 p-6 bg-white dark:bg-neutral-800 rounded-lg shadow-md transition-colors">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-        <span className="w-8 h-[2px] bg-amber-600"></span> Pendidikan
+        <span className="w-8 h-[2px] bg-amber-600 dark:bg-cyan-400 dark:shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span> Pendidikan
       </h2>
       <div className="mt-4 border-l-2 border-amber-600 pl-4">
         <h3 className="font-semibold text-gray-800 dark:text-white">S1 Teknik Informatika</h3>

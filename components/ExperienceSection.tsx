@@ -2,7 +2,7 @@ export default function ExperienceSection() {
   return (
     <section id="experience" className="max-w-2xl mx-6 sm:mx-auto mt-10 p-6 bg-white rounded-lg shadow-md dark:bg-neutral-800 transition-colors">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-        <span className="w-8 h-[2px] bg-amber-600"></span> Pengalaman
+        <span className="w-8 h-[2px] bg-amber-600 dark:bg-cyan-400 dark:shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span> Pengalaman
       </h2>
       <div className="mt-4 space-y-4">
         <div className="border-l-2 border-amber-600 pl-4">
