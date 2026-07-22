@@ -6,7 +6,7 @@ type Project = {
 };
 
 async function getProjects(): Promise<Project[]> {
-  const res = await fetch("http://localhost:8080/projects", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
     cache: "no-store",
   });
   const data = await res.json();

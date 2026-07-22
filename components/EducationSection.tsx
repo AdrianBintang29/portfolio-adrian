@@ -7,7 +7,7 @@ type Education = {
 };
 
 async function getEducation(): Promise<Education[]> {
-  const res = await fetch("http://localhost:8080/education", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/education`, {
     cache: "no-store",
   });
   const data = await res.json();

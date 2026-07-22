@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const router = useRouter();
 
   function loadProjects() {
-    fetch("http://localhost:8080/projects")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`)
       .then((res) => res.json())
       .then((data) => setProjects(data));
   }
@@ -58,7 +58,7 @@ export default function DashboardPage() {
     const token = localStorage.getItem("token");
 
     if (editingId) {
-      await fetch(`http://localhost:8080/projects/${editingId}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editingId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +67,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ title, description, link }),
       });
     } else {
-      await fetch("http://localhost:8080/projects", {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +84,7 @@ export default function DashboardPage() {
   async function handleDelete(id: number) {
     const token = localStorage.getItem("token");
 
-    await fetch(`http://localhost:8080/projects/${id}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

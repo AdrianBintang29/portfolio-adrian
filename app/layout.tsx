@@ -21,6 +21,13 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Adrian Bintang | Fullstack Developer",
   description: "Portfolio Adrian Bintang - Mahasiswa Informatika UPN Veteran Jawa Timur, Fullstack Developer",
+  keywords: ["Adrian Bintang", "Fullstack Developer", "Portfolio", "Next.js", "Go", "PostgreSQL"],
+  openGraph: {
+    title: "Adrian Bintang | Fullstack Developer",
+    description: "Portfolio Adrian Bintang - Mahasiswa Informatika UPN Veteran Jawa Timur, Fullstack Developer",
+    type: "website",
+    locale: "id_ID",
+  },
 };
 
 export default function RootLayout({
