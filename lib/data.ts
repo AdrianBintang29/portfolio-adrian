@@ -4,15 +4,24 @@ export interface PortfolioData {
   badge: string;
   name: string;
   fullName: string;
+  greeting: string;
   location: string;
   statusTag: string;
   title: string;
   heroPitch: string;
   heroSub: string;
+  ctaGetStarted: string;
   copyEmail: string;
   copied: string;
   downloadCV: string;
   viewWork: string;
+
+  quickHighlights: {
+    icon: string;
+    title: string;
+    subtitle: string;
+    desc: string;
+  }[];
 
   // About / Bio section
   aboutTitle: string;
@@ -85,15 +94,39 @@ export const portfolioContent: Record<Language, PortfolioData> = {
     badge: "Tersedia untuk Freelance & Kontrak",
     name: "Adrian Bintang",
     fullName: "Muhammad Adrian Bintang Hariyanto",
+    greeting: "Halo, saya",
     location: "Surabaya, Indonesia",
     statusTag: "Mahasiswa Informatika + Praktisi Magang",
     title: "Full-Stack Web Developer",
     heroPitch: "Membangun web modern, dashboard berbasis data, dan integrasi API yang tangguh di kondisi nyata.",
-    heroSub: "Spesialisasi Next.js, React, TypeScript, Go, PostgreSQL, dan Python. Berfokus pada kestabilan sistem, kontrak data konsisten, serta penanganan error aman tanpa data palsu.",
+    heroSub: "Full-stack developer berbasis di Surabaya. Butuh web kustom atau dashboard data yang stabil dan andal? Mari berdiskusi.",
+    ctaGetStarted: "Mulai Proyek",
     copyEmail: "Salin Email",
     copied: "Tersalin!",
     downloadCV: "Unduh CV",
     viewWork: "Lihat Proyek",
+
+    // Split Hero Quick Highlights (Inspired by creative personal landing)
+    quickHighlights: [
+      {
+        icon: "layout",
+        title: "FRONTEND MODERN",
+        subtitle: "Next.js, React, TypeScript",
+        desc: "Antarmuka responsif, transisi halus, state loading/error teruji, dan rendering cepat."
+      },
+      {
+        icon: "server",
+        title: "BACKEND BERSIH",
+        subtitle: "Go (Fiber), PostgreSQL, Python",
+        desc: "REST API performa tinggi, perancangan skema relasional, dan otorisasi aman."
+      },
+      {
+        icon: "api",
+        title: "INTEGRASI API",
+        subtitle: "Third-Party & Data Contracts",
+        desc: "Normalisasi data, cache pintar, tahan timeout jaringan dan provider eksternal rusak."
+      }
+    ],
 
     aboutTitle: "Profil & Komitmen Kerja",
     aboutRole: "Pengembang Full-Stack Berorientasi Ketahanan Sistem",
@@ -243,15 +276,39 @@ export const portfolioContent: Record<Language, PortfolioData> = {
     badge: "Available for Freelance & Contracts",
     name: "Adrian Bintang",
     fullName: "Muhammad Adrian Bintang Hariyanto",
+    greeting: "Hi, I'm",
     location: "Surabaya, Indonesia",
     statusTag: "Computer Science Student + Active Intern",
     title: "Full-Stack Web Developer",
     heroPitch: "Building modern web applications, data-driven dashboards, and robust API integrations built for real-world reliability.",
-    heroSub: "Specialized in Next.js, React, TypeScript, Go, PostgreSQL, and Python. Focused on system stability, consistent data contracts, and zero dummy data fallbacks.",
+    heroSub: "Full-stack developer based in Surabaya. Need a custom website or data dashboard that stays stable? Let's talk.",
+    ctaGetStarted: "Let's Talk",
     copyEmail: "Copy Email",
     copied: "Copied!",
     downloadCV: "Download CV",
     viewWork: "View Projects",
+
+    // Split Hero Quick Highlights (Inspired by creative personal landing)
+    quickHighlights: [
+      {
+        icon: "layout",
+        title: "MODERN FRONTEND",
+        subtitle: "Next.js, React, TypeScript",
+        desc: "Responsive interfaces, smooth transitions, complete state coverage, and fast rendering."
+      },
+      {
+        icon: "server",
+        title: "CLEAN BACKEND",
+        subtitle: "Go (Fiber), PostgreSQL, Python",
+        desc: "High-throughput REST APIs, relational schema design, and secure authorization."
+      },
+      {
+        icon: "api",
+        title: "API INTEGRATION",
+        subtitle: "Third-Party & Data Contracts",
+        desc: "Data normalization, smart caching, resilient against network timeouts and external provider errors."
+      }
+    ],
 
     aboutTitle: "Profile & Work Commitment",
     aboutRole: "Full-Stack Engineer Focused on System Resilience",
