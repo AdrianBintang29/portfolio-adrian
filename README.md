@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio Adrian Bintang
 
-## Getting Started
+Website portfolio personal & profesional untuk **Full-Stack Web Developer**.
+Dibangun dengan arsitektur murni frontend (tanpa dependensi backend server eksternal), responsif di semua ukuran layar (mobile & desktop), dan siap di-deploy langsung ke Vercel.
 
-First, run the development server:
+## Fitur & Kapabilitas
+- **Purely Frontend & Zero Backend Dependency:** Konten statis teroptimasi penuh, load instan, tidak ada risiko gagal koneksi API eksternal.
+- **Mobile-Adaptive Design:** Layout dirancang fluid dari layar 320px (smartphone) hingga layar desktop ultra-wide, tanpa horizontal scroll bug.
+- **Bilingual Interface (ID / EN):** Tombol alih bahasa instan tanpa refresh halaman.
+- **Showcase Ringkas Proyek Utama (considrAI):** Menyorot 4 kapabilitas rekayasa data & API krusial.
+- **Katalog Layanan & Tech Stack:** Pemetaan keahlian Frontend, Backend (Go/Python), PostgreSQL, dan Integrasi API.
+- **Aksi Cepat:** Salin alamat email langsung ke clipboard dengan visual feedback.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Icons:** Lucide React
+- **Deployment:** Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Menjalankan di Lingkungan Lokal
 
-## Learn More
+1. Masuk ke folder proyek:
+   ```bash
+   cd portfolio-adrian
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Jalankan development server:
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Akses via browser di: `http://localhost:3000`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Deploy ke Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push commit terbaru ke GitHub:
+   ```bash
+   git add .
+   git commit -m "feat: modernize portfolio with pure frontend and full mobile responsiveness"
+   git push origin main
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. Vercel akan otomatis mendeteksi perubahan branch `main` dan menjalankan build secara instan tanpa perlu setting environment variable backend lagi.

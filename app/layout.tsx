@@ -1,30 +1,28 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Playfair_Display } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#0b0f19",
+};
 
 export const metadata: Metadata = {
-  title: "Adrian Bintang | Fullstack Developer",
-  description: "Portfolio Adrian Bintang - Mahasiswa Informatika UPN Veteran Jawa Timur, Fullstack Developer",
-  keywords: ["Adrian Bintang", "Fullstack Developer", "Portfolio", "Next.js", "Go", "PostgreSQL"],
+  title: "Adrian Bintang | Full-Stack Web Developer",
+  description: "Portfolio Adrian Bintang - Full-Stack Web Developer. Next.js, React, TypeScript, Go, PostgreSQL, dan Integrasi API yang andal.",
+  keywords: ["Adrian Bintang", "Full-Stack Developer", "Next.js", "React", "TypeScript", "Go", "PostgreSQL", "API Integration", "considrAI"],
+  authors: [{ name: "Adrian Bintang" }],
   openGraph: {
-    title: "Adrian Bintang | Fullstack Developer",
-    description: "Portfolio Adrian Bintang - Mahasiswa Informatika UPN Veteran Jawa Timur, Fullstack Developer",
+    title: "Adrian Bintang | Full-Stack Web Developer",
+    description: "Spesialisasi Next.js, React, TypeScript, Go, PostgreSQL, dan integrasi API tangguh.",
     type: "website",
     locale: "id_ID",
   },
@@ -36,11 +34,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="id" className={`dark ${inter.variable} scroll-smooth`}>
+      <body className="antialiased bg-[#0b0f19] text-[#f3f4f6] min-h-screen selection:bg-[#2FA69A] selection:text-white font-sans overflow-x-hidden">
+        {children}
+      </body>
     </html>
   );
 }
