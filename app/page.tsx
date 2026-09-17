@@ -16,7 +16,11 @@ import {
   Activity,
   Zap,
   Mail,
-  FolderGit2
+  FolderGit2,
+  Download,
+  UserCheck,
+  MapPin,
+  GraduationCap
 } from 'lucide-react';
 
 export default function Home() {
@@ -32,13 +36,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-[#f3f4f6] relative selection:bg-[#2FA69A] selection:text-white w-full overflow-x-hidden">
-      {/* Background glow accent */}
+      {/* Background radial glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-80 bg-gradient-to-b from-[#2FA69A]/15 to-transparent blur-3xl pointer-events-none -z-10" />
 
-      {/* STICKY NAVBAR - Responsive mobile & desktop */}
+      {/* STICKY NAVBAR - fully responsive */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-[#0b0f19]/85 border-b border-[#1f293d]/80">
         <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
-          {/* Logo & Role */}
+          {/* Logo & Identity */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2FA69A] to-[#164c47] flex items-center justify-center font-bold text-white text-sm shadow-sm shrink-0">
               A
@@ -53,15 +57,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Controls: Badge & Lang toggle */}
+          {/* Badge & Language Selector */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Availability Pill (desktop) */}
             <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#2FA69A]/10 text-[#5eead4] border border-[#2FA69A]/20">
               <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf] animate-pulse" />
               <span>{t.badge}</span>
             </div>
 
-            {/* Language Selector Toggle */}
             <div className="flex items-center p-0.5 rounded-lg bg-[#111827] border border-[#1f293d] text-xs font-semibold">
               <button
                 type="button"
@@ -93,24 +95,35 @@ export default function Home() {
       </header>
 
       {/* MAIN CONTAINER */}
-      <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16 space-y-14 sm:space-y-20">
+      <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-14 space-y-12 sm:space-y-16">
 
         {/* HERO SECTION */}
-        <section className="space-y-5 sm:space-y-6">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-[#111827] border border-[#1f293d] text-[#94a3b8] max-w-full truncate">
-            <Terminal className="w-3.5 h-3.5 text-[#2FA69A] shrink-0" />
-            <span className="truncate">Next.js · React · TypeScript · Go · PostgreSQL · Python</span>
+        <section className="space-y-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-[#111827] border border-[#1f293d] text-[#94a3b8]">
+              <MapPin className="w-3 h-3 text-[#2FA69A]" />
+              <span>{t.location}</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-[#111827] border border-[#1f293d] text-[#5eead4]">
+              <GraduationCap className="w-3.5 h-3.5 text-[#2FA69A]" />
+              <span>{t.statusTag}</span>
+            </div>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-            {t.heroPitch}
-          </h1>
+          <div>
+            <p className="text-xs sm:text-sm font-mono text-[#2FA69A] tracking-wider uppercase mb-1">
+              {t.fullName}
+            </p>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+              {t.heroPitch}
+            </h1>
+          </div>
 
           <p className="text-sm sm:text-base md:text-lg text-[#94a3b8] leading-relaxed max-w-2xl">
             {t.heroSub}
           </p>
 
-          {/* Action buttons */}
+          {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2">
             <button
               onClick={handleCopyEmail}
@@ -121,14 +134,23 @@ export default function Home() {
             </button>
 
             <a
-              href="#project"
+              href="/CV-Adrian-Bintang.pdf"
+              download
               className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-lg bg-[#111827] hover:bg-[#162033] text-[#f3f4f6] border border-[#1f293d] hover:border-[#2d3b55] font-medium text-xs sm:text-sm transition-all"
+            >
+              <Download className="w-4 h-4 text-[#2FA69A]" />
+              <span>{t.downloadCV}</span>
+            </a>
+
+            <a
+              href="#project"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-lg bg-[#111827] hover:bg-[#162033] text-[#94a3b8] hover:text-white border border-[#1f293d] hover:border-[#2d3b55] font-medium text-xs sm:text-sm transition-all"
             >
               <span>{t.viewWork}</span>
               <ArrowUpRight className="w-4 h-4 text-[#94a3b8]" />
             </a>
 
-            {/* Social Icons */}
+            {/* Socials */}
             <div className="flex items-center gap-2 ml-auto">
               <a
                 href={t.github}
@@ -156,11 +178,51 @@ export default function Home() {
           </div>
 
           {/* Quick Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-4 border-t border-[#1f293d]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-3 border-t border-[#1f293d]">
             {t.stats.map((st, idx) => (
               <div key={idx} className="p-2.5 sm:p-3 rounded-lg bg-[#111827]/60 border border-[#1f293d]">
                 <p className="text-[10px] sm:text-xs text-[#64748b] uppercase tracking-wider font-semibold">{st.label}</p>
                 <p className="text-xs sm:text-sm font-semibold text-white mt-0.5">{st.val}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ABOUT & CLIENT COMMITMENT SECTION */}
+        <section className="rounded-2xl bg-[#111827] border border-[#1f293d] p-5 sm:p-7 space-y-5">
+          <div className="flex items-center gap-2">
+            <UserCheck className="w-5 h-5 text-[#2FA69A]" />
+            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-white">
+              {t.aboutTitle}
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-sm sm:text-base font-semibold text-[#5eead4]">
+              {t.aboutRole}
+            </h3>
+            <p className="text-xs sm:text-sm text-[#cbd5e1] leading-relaxed">
+              {t.aboutBio}
+            </p>
+          </div>
+
+          {/* Client Commitment Box */}
+          <div className="p-4 rounded-xl bg-[#0b0f19] border border-[#2FA69A]/30 space-y-1.5">
+            <h4 className="text-xs sm:text-sm font-semibold text-white flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-[#2FA69A]" />
+              <span>{t.aboutCommitmentTitle}</span>
+            </h4>
+            <p className="text-xs sm:text-sm text-[#94a3b8] leading-relaxed">
+              {t.aboutCommitment}
+            </p>
+          </div>
+
+          {/* Biodata grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-[#1f293d]">
+            {t.profileDetails.map((item, idx) => (
+              <div key={idx} className="p-3 rounded-lg bg-[#0b0f19]/60 border border-[#1f293d] text-xs">
+                <span className="text-[#64748b] block font-mono uppercase text-[10px]">{item.label}</span>
+                <span className="text-white font-medium mt-0.5 block">{item.value}</span>
               </div>
             ))}
           </div>
@@ -221,7 +283,6 @@ export default function Home() {
           </div>
 
           <div className="rounded-2xl bg-[#111827] border border-[#1f293d] p-5 sm:p-7 space-y-5">
-            {/* Overview & Role */}
             <div className="space-y-3">
               <p className="text-xs sm:text-sm md:text-base text-[#cbd5e1] leading-relaxed">
                 {t.projectOverview}
@@ -235,7 +296,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Crucial Capabilities */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#94a3b8] mb-2.5">
                 {t.crucialCapabilitiesTitle}
@@ -258,7 +318,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Tech Stack Pills */}
             <div className="border-t border-[#1f293d] pt-3.5 flex flex-wrap items-center gap-1.5">
               <span className="text-xs text-[#64748b] font-medium mr-1">Stack:</span>
               {t.projectStack.map((tech, sIdx) => (
@@ -315,7 +374,6 @@ export default function Home() {
 
         {/* TECH STACK & SERVICES */}
         <section className="space-y-6 sm:space-y-8">
-          {/* Tech Stack */}
           <div className="space-y-3 sm:space-y-4">
             <div>
               <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -347,7 +405,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Services */}
           <div className="space-y-3 sm:space-y-4 pt-4 border-t border-[#1f293d]">
             <div>
               <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -406,7 +463,7 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="border-t border-[#1f293d] py-6 sm:py-8 text-center text-xs text-[#64748b]">
         <div className="w-full max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© {new Date().getFullYear()} {t.name}. Built with Next.js & Tailwind CSS.</p>
+          <p>© {new Date().getFullYear()} {t.fullName}. Built with Next.js & Tailwind CSS.</p>
           <div className="flex items-center gap-4">
             <a href={t.github} target="_blank" rel="noreferrer" className="hover:text-white transition-colors">
               GitHub

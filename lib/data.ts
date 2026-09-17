@@ -3,13 +3,27 @@ export type Language = 'id' | 'en';
 export interface PortfolioData {
   badge: string;
   name: string;
+  fullName: string;
+  location: string;
+  statusTag: string;
   title: string;
   heroPitch: string;
   heroSub: string;
   copyEmail: string;
   copied: string;
-  directEmail: string;
+  downloadCV: string;
   viewWork: string;
+
+  // About / Bio section
+  aboutTitle: string;
+  aboutRole: string;
+  aboutBio: string;
+  aboutCommitmentTitle: string;
+  aboutCommitment: string;
+  profileDetails: {
+    label: string;
+    value: string;
+  }[];
 
   stats: {
     label: string;
@@ -43,7 +57,6 @@ export interface PortfolioData {
     desc: string;
     points: string[];
     stack: string[];
-    link?: string;
   }[];
 
   skillsTitle: string;
@@ -69,15 +82,30 @@ export interface PortfolioData {
 
 export const portfolioContent: Record<Language, PortfolioData> = {
   id: {
-    badge: "Tersedia untuk Pekerjaan / Kontrak",
+    badge: "Tersedia untuk Freelance & Kontrak",
     name: "Adrian Bintang",
+    fullName: "Muhammad Adrian Bintang Hariyanto",
+    location: "Surabaya, Indonesia",
+    statusTag: "Mahasiswa Informatika + Praktisi Magang",
     title: "Full-Stack Web Developer",
     heroPitch: "Membangun web modern, dashboard berbasis data, dan integrasi API yang tangguh di kondisi nyata.",
-    heroSub: "Spesialisasi Next.js, React, TypeScript, Go, PostgreSQL, dan Python. Berfokus pada kestabilan sistem, data konsisten, serta error handling yang aman tanpa manipulasi data palsu.",
+    heroSub: "Spesialisasi Next.js, React, TypeScript, Go, PostgreSQL, dan Python. Berfokus pada kestabilan sistem, kontrak data konsisten, serta penanganan error aman tanpa data palsu.",
     copyEmail: "Salin Email",
     copied: "Tersalin!",
-    directEmail: "Kirim Email",
-    viewWork: "Lihat Proyek Unggulan",
+    downloadCV: "Unduh CV",
+    viewWork: "Lihat Proyek",
+
+    aboutTitle: "Profil & Komitmen Kerja",
+    aboutRole: "Pengembang Full-Stack Berorientasi Ketahanan Sistem",
+    aboutBio: "Saya mahasiswa Teknik Informatika di Surabaya yang aktif magang sebagai software engineer. Terbiasa membangun aplikasi web dari hulu ke hilir—mulai dari perancangan skema database dan integrasi REST API hingga tampilan antarmuka interaktif responsif.",
+    aboutCommitmentTitle: "Komitmen Kerja untuk Klien:",
+    aboutCommitment: "Saya menghargai kepercayaan Anda. Setiap proyek freelance dikerjakan dengan estimasi waktu realistis, komunikasi progres transparan tanpa ghosting, dan standar kode teruji yang tahan terhadap kegagalan jaringan atau data eksternal.",
+    profileDetails: [
+      { label: "Domisili", value: "Surabaya, Indonesia (UTC+7)" },
+      { label: "Aktivitas", value: "Kuliah Informatika + Magang Software Engineering" },
+      { label: "Fokus Layanan", value: "Freelance Web Application, Dashboard, & API Integration" },
+      { label: "Metode Kerja", value: "Remote, Komunikasi Transparan, Update Rutin" }
+    ],
 
     stats: [
       { label: "Spesialisasi", val: "Full-Stack & API" },
@@ -205,22 +233,37 @@ export const portfolioContent: Record<Language, PortfolioData> = {
     ],
 
     contactTitle: "Butuh Sistem Web yang Tangguh & Stabil?",
-    contactSub: "Saya terbuka untuk peluang freelance, kontrak kerja, atau kolaborasi teknis.",
+    contactSub: "Saya terbuka untuk proyek freelance, kontrak sistem, atau kolaborasi teknis.",
     email: "adrianbintang29@gmail.com",
     github: "https://github.com/AdrianBintang29",
     linkedin: "https://linkedin.com/in/adrianbintang"
   },
 
   en: {
-    badge: "Available for Work / Contracts",
+    badge: "Available for Freelance & Contracts",
     name: "Adrian Bintang",
+    fullName: "Muhammad Adrian Bintang Hariyanto",
+    location: "Surabaya, Indonesia",
+    statusTag: "Computer Science Student + Active Intern",
     title: "Full-Stack Web Developer",
     heroPitch: "Building modern web applications, data-driven dashboards, and robust API integrations built for real-world reliability.",
     heroSub: "Specialized in Next.js, React, TypeScript, Go, PostgreSQL, and Python. Focused on system stability, consistent data contracts, and zero dummy data fallbacks.",
     copyEmail: "Copy Email",
     copied: "Copied!",
-    directEmail: "Send Email",
-    viewWork: "View Featured Project",
+    downloadCV: "Download CV",
+    viewWork: "View Projects",
+
+    aboutTitle: "Profile & Work Commitment",
+    aboutRole: "Full-Stack Engineer Focused on System Resilience",
+    aboutBio: "I am a Computer Science student in Surabaya and an active software engineering intern. Experienced in end-to-end web delivery—from relational database modeling and REST API engineering to responsive and interactive user interfaces.",
+    aboutCommitmentTitle: "Client Commitment:",
+    aboutCommitment: "I respect client trust and deadlines. Every freelance engagement includes realistic milestone timelines, clear and proactive communication without ghosting, and robust code tested to survive network degradation and external provider errors.",
+    profileDetails: [
+      { label: "Location", value: "Surabaya, Indonesia (UTC+7)" },
+      { label: "Current Status", value: "CS Degree Student + Software Engineering Intern" },
+      { label: "Service Focus", value: "Freelance Web Apps, Business Dashboards, & API Integration" },
+      { label: "Work Style", value: "Remote, Transparent Communication, Regular Milestones" }
+    ],
 
     stats: [
       { label: "Specialization", val: "Full-Stack & API" },
