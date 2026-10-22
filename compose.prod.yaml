@@ -1,0 +1,56 @@
+services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: portfolio-adrian:1.0
+    container_name: portfolio
+    expose:
+      - "3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  portainer:
+    image: portainer/portainer-ce:lts
+    container_name: portainer
+    ports:
+      - "127.0.0.1:9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: unless-stopped
+
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:2.16.0
+    container_name: nginx-proxy-manager
+    ports:
+      - "80:80"
+      - "127.0.0.1:81:81"
+      - "443:443"
+    environment:
+      TZ: Asia/Jakarta
+      DISABLE_IPV6: "${DISABLE_IPV6:-true}"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    depends_on:
+      portfolio:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  portainer_data:
+    name: portainer_data
+  npm_data:
+    name: npm_data
+  npm_letsencrypt:
+    name: npm_letsencrypt
