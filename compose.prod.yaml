@@ -47,6 +47,19 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+      - --token
+      - ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - nginx-proxy-manager
+    restart: unless-stopped
+
 volumes:
   portainer_data:
     name: portainer_data

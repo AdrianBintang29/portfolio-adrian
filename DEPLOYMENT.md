@@ -5,13 +5,14 @@ Dokumen ini dipakai setelah akses VPS portfolio dikonfirmasi.
 ## Arsitektur
 
 ```text
-Browser -> DNS -> VPS:80/443 -> Nginx Proxy Manager -> portfolio:3000
+Browser -> Cloudflare HTTPS -> Cloudflare Tunnel -> Nginx Proxy Manager -> portfolio:3000
 ```
 
 - Port `80` dan `443` dibuka untuk trafik web publik.
 - Port portfolio `3000` hanya tersedia di Docker network.
 - Dashboard Nginx Proxy Manager `81` dan Portainer `9443` hanya bind ke loopback VPS.
 - Dashboard admin diakses dari laptop melalui SSH tunnel.
+- Token Cloudflare Tunnel disimpan hanya di `.env` VPS dan tidak dikomit ke Git.
 
 ## Audit Awal VPS
 
@@ -41,12 +42,25 @@ docker compose -f compose.prod.yaml up -d --build
 docker compose -f compose.prod.yaml ps
 ```
 
+Sebelum menjalankan stack, buat `.env` di VPS:
+
+```text
+CLOUDFLARE_TUNNEL_TOKEN=token-rahasia-dari-Cloudflare
+```
+
+Lindungi file tersebut:
+
+```bash
+chmod 600 .env
+```
+
 Lihat log:
 
 ```bash
 docker compose -f compose.prod.yaml logs --tail 100 portfolio
 docker compose -f compose.prod.yaml logs --tail 100 nginx-proxy-manager
 docker compose -f compose.prod.yaml logs --tail 100 portainer
+docker compose -f compose.prod.yaml logs --tail 100 cloudflared
 ```
 
 ## SSH Tunnel Dashboard Admin
@@ -84,11 +98,14 @@ Websockets Support: aktif
 
 Setelah DNS selesai propagasi, minta sertifikat Let's Encrypt dan aktifkan Force SSL.
 
-## DNS
+## DNS dan Cloudflare Tunnel
 
 - `A`: domain/subdomain ke IPv4 VPS.
 - `AAAA`: domain/subdomain ke IPv6 VPS, hanya jika IPv6 sudah diuji.
 - `CNAME`: satu nama domain menjadi alias nama domain lain.
+- Untuk VPS NAT ini, Cloudflare Tunnel dipakai agar trafik publik tidak bergantung pada inbound port forwarding.
+- Public hostname tunnel meneruskan `portfolio-adrian.web.id` ke `http://nginx-proxy-manager:80`.
+- Nginx Proxy Manager kemudian meneruskan hostname tersebut ke `http://portfolio:3000`.
 
 ## Backup Volume
 
