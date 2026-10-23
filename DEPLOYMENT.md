@@ -8,6 +8,15 @@ Dokumen ini dipakai setelah akses VPS portfolio dikonfirmasi.
 Browser -> Cloudflare HTTPS -> Cloudflare Tunnel -> Nginx Proxy Manager -> portfolio:3000
 ```
 
+Alur sederhananya:
+
+1. Browser meminta domain portfolio melalui HTTPS.
+2. Cloudflare menerima HTTPS dan meneruskan request ke Tunnel.
+3. `cloudflared` di VPS meneruskan request ke `nginx-proxy-manager:80`.
+4. Nginx Proxy Manager membaca hostname lalu memilih Proxy Host.
+5. Proxy Host meneruskan request ke `portfolio:3000` melalui Docker network.
+6. Next.js di dalam container mengirim response kembali melalui jalur yang sama.
+
 - Port `80` dan `443` dibuka untuk trafik web publik.
 - Port portfolio `3000` hanya tersedia di Docker network.
 - Dashboard Nginx Proxy Manager `81` dan Portainer `9443` hanya bind ke loopback VPS.

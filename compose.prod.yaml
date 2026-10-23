@@ -1,4 +1,5 @@
 services:
+  # Portfolio hanya tersedia di Docker network; trafik publik masuk lewat NPM/Tunnel.
   portfolio:
     build:
       context: .
@@ -19,6 +20,7 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  # Dashboard admin hanya bind ke loopback VPS dan diakses melalui SSH tunnel.
   portainer:
     image: portainer/portainer-ce:lts
     container_name: portainer
@@ -29,6 +31,7 @@ services:
       - portainer_data:/data
     restart: unless-stopped
 
+  # Pintu masuk HTTP/HTTPS internal untuk routing ke service portfolio.
   nginx-proxy-manager:
     image: jc21/nginx-proxy-manager:2.16.0
     container_name: nginx-proxy-manager
@@ -47,6 +50,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # Tunnel membuat koneksi keluar ke Cloudflare, sehingga NAT tidak perlu inbound 80/443.
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
