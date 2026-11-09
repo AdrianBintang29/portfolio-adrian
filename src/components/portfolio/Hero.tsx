@@ -1,4 +1,8 @@
-export function Hero() {
+import { getProfile } from '@/lib/db/queries';
+
+export async function Hero() {
+  const profile = await getProfile();
+
   return (
     <section
       id="hero"
@@ -6,7 +10,7 @@ export function Hero() {
     >
       <div>
         <p className="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-gray-blue">
-          Frontend Developer
+          {profile.role}
         </p>
 
         <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight text-navy md:text-7xl">
@@ -14,8 +18,7 @@ export function Hero() {
         </h1>
 
         <p className="mt-6 max-w-xl text-lg leading-8 text-gray-blue">
-          Saya belajar membangun aplikasi web dari interface, API, database, sampai deployment
-          menggunakan Docker.
+          {profile.bio}
         </p>
 
         <div className="mt-8 flex flex-wrap gap-4">

@@ -1,5 +1,18 @@
+import { cache } from 'react';
 import { connection } from 'next/server';
 import { getPrisma } from '@/lib/db/prisma';
+
+export const getProfile = cache(async () => {
+  await connection();
+
+  const profile = await getPrisma().profile.findFirst();
+
+  if (!profile) {
+    throw new Error('Profil belum diisi. Jalankan npm run db:seed.');
+  }
+
+  return profile;
+});
 
 export async function getProjects() {
   await connection();

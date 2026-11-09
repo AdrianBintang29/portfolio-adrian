@@ -1,4 +1,8 @@
-export function Header() {
+import { getProfile } from '@/lib/db/queries';
+
+export async function Header() {
+  const profile = await getProfile();
+
   return (
     <header className="border-b border-gray-blue/20 bg-paper">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
@@ -6,7 +10,7 @@ export function Header() {
           href="#top"
           className="text-lg font-bold tracking-tight text-navy"
         >
-          Muhammad Adrian Bintang Hariyanto
+          {profile.fullName}
         </a>
 
         <nav aria-label="Navigasi utama">

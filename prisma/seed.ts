@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
-import { initialProjects, initialSkillGroups } from './seed-data';
+import { initialProfile, initialProjects, initialSkillGroups } from './seed-data';
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -45,8 +45,17 @@ async function main() {
     }
   }
 
-  const [projects, skills] = await Promise.all([prisma.project.count(), prisma.skill.count()]);
-  console.log(`Seed selesai: ${projects} project, ${skills} skill.`);
+  // Profil hanya satu baris, jadi hanya diisi kalau tabelnya masih kosong.
+  if ((await prisma.profile.count()) === 0) {
+    await prisma.profile.create({ data: initialProfile });
+  }
+
+  const [projects, skills, profiles] = await Promise.all([
+    prisma.project.count(),
+    prisma.skill.count(),
+    prisma.profile.count(),
+  ]);
+  console.log(`Seed selesai: ${projects} project, ${skills} skill, ${profiles} profil.`);
 }
 
 main()
