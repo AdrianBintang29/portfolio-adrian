@@ -1,0 +1,22 @@
+{
+  "workbench.editor.labelFormat": "short",
+  "explorer.compactFolders": false,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, .npmrc",
+    "tsconfig.json": "next-env.d.ts, eslint.config.mjs, postcss.config.mjs, next.config.ts",
+    "Dockerfile": ".dockerignore, compose.yaml, compose.prod.yaml",
+    "README.md": "DEPLOYMENT.md, AGENTS.md, CLAUDE.md",
+    "schema.prisma": "seed.ts, seed-data.ts, create-admin.ts"
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/.git": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/src/generated": true,
+    "**/package-lock.json": true
+  }
+}
