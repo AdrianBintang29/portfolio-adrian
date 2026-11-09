@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Satu akun admin untuk login ke panel. Password disimpan sebagai hash, bukan teks asli.
+model Admin {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  passwordHash String
+  sessions     Session[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  adminId   String
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([adminId])
+}
+
+// Data diri yang tampil di Hero, About, Contact, dan Footer. Hanya ada satu baris.
+model Profile {
+  id          String   @id @default(uuid())
+  name        String
+  fullName    String
+  role        String
+  bio         String
+  origin      String?
+  email       String
+  githubUrl   String?
+  linkedinUrl String?
+  cvUrl       String?
+  avatarUrl   String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  summary     String
+  description String?
+  imageUrl    String?
+  liveUrl     String?
+  repoUrl     String?
+  stack       String[]
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id        String @id @default(uuid())
+  name      String
+  category  String
+  sortOrder Int    @default(0)
+}

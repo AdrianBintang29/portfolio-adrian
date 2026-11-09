@@ -43,3 +43,5 @@ dev.log
 
 # local deployment backups
 /backups/
+
+/src/generated/prisma
