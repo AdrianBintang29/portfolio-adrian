@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
-    "db:create-admin": "tsx prisma/create-admin.ts"
+    "db:create-admin": "tsx prisma/create-admin.ts",
+    "test:e2e": "node scripts/e2e/run.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
@@ -28,7 +29,9 @@
     "dotenv": "^18.0.9",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "pg": "^8.23.1",
     "prisma": "^7.10.1",
+    "puppeteer-core": "^25.16.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
