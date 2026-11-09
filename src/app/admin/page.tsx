@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth/session';
 import { logout, logoutEverywhere } from './logout-actions';
 
@@ -15,6 +16,22 @@ export default async function AdminPage() {
       <p className="mt-3 text-sm text-gray-blue">
         Kamu masuk sebagai admin. ID sesi: {session.sessionId}
       </p>
+
+      <div className="mt-8 flex flex-wrap gap-4">
+        <Link
+          href="/admin/profile"
+          className="inline-block bg-yellow px-5 py-3 text-sm font-bold text-navy transition-colors hover:bg-navy hover:text-paper"
+        >
+          Edit profil
+        </Link>
+
+        <Link
+          href="/admin/projects"
+          className="inline-block bg-yellow px-5 py-3 text-sm font-bold text-navy transition-colors hover:bg-navy hover:text-paper"
+        >
+          Kelola project
+        </Link>
+      </div>
 
       <div className="mt-8 flex flex-wrap gap-4">
         <form action={logout}>
