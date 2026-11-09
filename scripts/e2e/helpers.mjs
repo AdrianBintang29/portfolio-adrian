@@ -90,6 +90,9 @@ export async function disableBrowserValidation(page) {
   await page.$$eval('input[type=url], input[type=email]', (els) =>
     els.forEach((el) => el.setAttribute('type', 'text')),
   );
+  await page.$$eval('input[maxlength], textarea[maxlength]', (els) =>
+    els.forEach((el) => el.removeAttribute('maxlength')),
+  );
 }
 
 export async function submitForm(page) {

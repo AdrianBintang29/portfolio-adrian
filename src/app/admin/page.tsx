@@ -31,6 +31,13 @@ export default async function AdminPage() {
         >
           Kelola project
         </Link>
+
+        <Link
+          href="/admin/skills"
+          className="inline-block bg-yellow px-5 py-3 text-sm font-bold text-navy transition-colors hover:bg-navy hover:text-paper"
+        >
+          Kelola skill
+        </Link>
       </div>
 
       <div className="mt-8 flex flex-wrap gap-4">

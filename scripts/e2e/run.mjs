@@ -80,7 +80,7 @@ try {
 
   let allPassed = true;
 
-  for (const file of ['admin-e2e.mjs', 'projects-e2e.mjs']) {
+  for (const file of ['admin-e2e.mjs', 'projects-e2e.mjs', 'skills-e2e.mjs']) {
     console.log(`\n>>> ${file}`);
     const result = spawnSync('node', [`scripts/e2e/${file}`], { env: childEnv, stdio: 'inherit' });
     if (result.status !== 0) allPassed = false;
