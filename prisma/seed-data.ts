@@ -74,6 +74,13 @@ export const initialProfile = {
   fullName: 'Muhammad Adrian Bintang Hariyanto',
   role: 'Fullstack Developer',
   bio: 'Saya belajar membangun aplikasi web dari interface, API, database, sampai deployment menggunakan Docker.',
+  heroHeadline: 'Saya membangun website yang sederhana dan berguna.',
+  aboutTitle: 'Gaming & Coding',
+  aboutBody: [
+    'Saya adalah pengembang web yang fokus memahami siklus utuh software: mulai dari interface yang responsif, logika backend API, persistensi database, hingga proses orkestrasi container dan deployment server.',
+    'Alih-alih sekadar memakai framework atau library instan tanpa tahu cara kerjanya, saya lebih suka mengeksplorasi alasan teknis di balik setiap konfigurasi, seperti bagaimana Docker mengisolasi aplikasi, bagaimana reverse proxy meneruskan request, atau bagaimana schema database dimigrasi secara aman.',
+    'Portfolio ini dan seluruh infrastruktur di belakangnya dibangun sebagai media belajar langsung dan dokumentasi progres rekayasa perangkat lunak saya.',
+  ].join('\n\n'),
   email: 'adrianbintang29@gmail.com',
   githubUrl: 'https://github.com/AdrianBintang29',
   cvUrl: '/CV-Adrian-Bintang.pdf',

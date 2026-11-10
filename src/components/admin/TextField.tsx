@@ -10,6 +10,7 @@ type TextFieldProps = {
   required?: boolean;
   hint?: string;
   multiline?: boolean;
+  rows?: number;
 };
 
 export function TextField({
@@ -21,6 +22,7 @@ export function TextField({
   required = false,
   hint,
   multiline = false,
+  rows = 4,
 }: TextFieldProps) {
   const describedBy = hint ? `${name}-hint` : undefined;
 
@@ -34,7 +36,7 @@ export function TextField({
         <textarea
           id={name}
           name={name}
-          rows={4}
+          rows={rows}
           defaultValue={defaultValue}
           maxLength={maxLength}
           required={required}

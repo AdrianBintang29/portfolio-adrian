@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth/session';
 import { getPrisma } from '@/lib/db/prisma';
+import { normalizeMultiline } from '@/lib/text';
 import { isHttpUrl, readText } from '@/lib/validation';
 
 export type ProfileFields = {
@@ -10,6 +11,9 @@ export type ProfileFields = {
   fullName: string;
   role: string;
   bio: string;
+  heroHeadline: string;
+  aboutTitle: string;
+  aboutBody: string;
   email: string;
   githubUrl: string;
 };
@@ -25,6 +29,9 @@ const MAX_LENGTH: Record<keyof ProfileFields, number> = {
   fullName: 120,
   role: 80,
   bio: 400,
+  heroHeadline: 120,
+  aboutTitle: 80,
+  aboutBody: 2000,
   email: 120,
   githubUrl: 200,
 };
@@ -32,8 +39,19 @@ const MAX_LENGTH: Record<keyof ProfileFields, number> = {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validate(values: ProfileFields): string | null {
-  if (!values.name || !values.fullName || !values.role || !values.bio || !values.email) {
-    return 'Nama, nama lengkap, role, bio, dan email wajib diisi.';
+  const required = [
+    values.name,
+    values.fullName,
+    values.role,
+    values.bio,
+    values.heroHeadline,
+    values.aboutTitle,
+    values.aboutBody,
+    values.email,
+  ];
+
+  if (required.some((value) => !value)) {
+    return 'Nama, nama lengkap, role, bio, judul Hero, judul dan isi About, serta email wajib diisi.';
   }
 
   for (const key of Object.keys(MAX_LENGTH) as (keyof ProfileFields)[]) {
@@ -64,6 +82,9 @@ export async function updateProfile(
     fullName: readText(formData, 'fullName'),
     role: readText(formData, 'role'),
     bio: readText(formData, 'bio'),
+    heroHeadline: readText(formData, 'heroHeadline'),
+    aboutTitle: readText(formData, 'aboutTitle'),
+    aboutBody: normalizeMultiline(String(formData.get('aboutBody') ?? '')),
     email: readText(formData, 'email'),
     githubUrl: readText(formData, 'githubUrl'),
   };

@@ -103,6 +103,21 @@ export async function submitForm(page) {
   await sleep(700);
 }
 
+// Menunggu sampai syarat terpenuhi (maksimal beberapa detik), lalu mengembalikan hasil terakhir.
+// Dipakai untuk aksi yang berjalan di server setelah tombol ditekan, supaya tes tidak bergantung
+// pada tebakan waktu tunggu tetap.
+export async function waitFor(read, isDone, { timeout = 8000, interval = 250 } = {}) {
+  const deadline = Date.now() + timeout;
+  let value = await read();
+
+  while (!isDone(value) && Date.now() < deadline) {
+    await sleep(interval);
+    value = await read();
+  }
+
+  return value;
+}
+
 export async function pageText(page) {
   return page.$eval('body', (body) => body.innerText);
 }

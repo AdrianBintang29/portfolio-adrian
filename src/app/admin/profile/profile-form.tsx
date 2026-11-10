@@ -40,12 +40,41 @@ export function ProfileForm({ defaults }: { defaults: ProfileFields }) {
       />
 
       <TextField
+        name="heroHeadline"
+        label="Judul besar di bagian atas"
+        defaultValue={current.heroHeadline}
+        maxLength={120}
+        required
+        hint="Kalimat besar di Hero. Singkat lebih baik, maksimal 120 karakter."
+      />
+
+      <TextField
         name="bio"
         label="Bio singkat"
         defaultValue={current.bio}
         maxLength={400}
         required
         multiline
+        hint="Kalimat di bawah judul besar."
+      />
+
+      <TextField
+        name="aboutTitle"
+        label="Judul bagian About"
+        defaultValue={current.aboutTitle}
+        maxLength={80}
+        required
+      />
+
+      <TextField
+        name="aboutBody"
+        label="Isi bagian About"
+        defaultValue={current.aboutBody}
+        maxLength={2000}
+        required
+        multiline
+        rows={10}
+        hint="Pisahkan paragraf dengan satu baris kosong. Maksimal 2000 karakter."
       />
 
       <TextField

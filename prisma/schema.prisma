@@ -28,19 +28,24 @@ model Session {
 }
 
 // Data diri yang tampil di Hero, About, Contact, dan Footer. Hanya ada satu baris.
+// heroHeadline, aboutTitle, dan aboutBody punya nilai bawaan agar migrasi aman
+// untuk baris Profile yang sudah ada di database (termasuk di VPS).
 model Profile {
-  id          String   @id @default(uuid())
-  name        String
-  fullName    String
-  role        String
-  bio         String
-  origin      String?
-  email       String
-  githubUrl   String?
-  linkedinUrl String?
-  cvUrl       String?
-  avatarUrl   String?
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  fullName     String
+  role         String
+  bio          String
+  heroHeadline String   @default("Saya membangun website yang sederhana dan berguna.")
+  aboutTitle   String   @default("Belajar dengan membangun project nyata.")
+  aboutBody    String   @default("Ceritakan tentang dirimu di sini.")
+  origin       String?
+  email        String
+  githubUrl    String?
+  linkedinUrl  String?
+  cvUrl        String?
+  avatarUrl    String?
+  updatedAt    DateTime @updatedAt
 }
 
 model Project {

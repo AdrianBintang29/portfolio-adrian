@@ -14,7 +14,7 @@ export async function Hero() {
         </p>
 
         <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight text-navy md:text-7xl">
-          Saya membangun website yang sederhana dan berguna.
+          {profile.heroHeadline}
         </h1>
 
         <p className="mt-6 max-w-xl text-lg leading-8 text-gray-blue">

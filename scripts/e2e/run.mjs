@@ -86,7 +86,7 @@ try {
 
   let allPassed = true;
 
-  for (const file of ['admin-e2e.mjs', 'projects-e2e.mjs', 'skills-e2e.mjs', 'uploads-e2e.mjs']) {
+  for (const file of ['admin-e2e.mjs', 'content-e2e.mjs', 'projects-e2e.mjs', 'skills-e2e.mjs', 'uploads-e2e.mjs']) {
     console.log(`\n>>> ${file}`);
     const result = spawnSync('node', [`scripts/e2e/${file}`], { env: childEnv, stdio: 'inherit' });
     if (result.status !== 0) allPassed = false;
@@ -100,13 +100,30 @@ try {
   if (server) {
     spawnSync('taskkill', ['/PID', String(server.pid), '/T', '/F'], { stdio: 'ignore' });
   }
+
+  // Cadangan: matikan apa pun yang masih memegang port tes, termasuk anak proses yang
+  // lepas dari pohon proses setelah "npx" selesai.
   const check = spawnSync('netstat', ['-ano'], { encoding: 'utf8' });
+  const pids = new Set();
   for (const line of check.stdout.split(/\r?\n/)) {
     if (line.includes(`:${PORT} `) && line.includes('LISTENING')) {
-      const pid = line.trim().split(/\s+/).pop();
-      spawnSync('taskkill', ['/PID', pid, '/T', '/F'], { stdio: 'ignore' });
+      pids.add(line.trim().split(/\s+/).pop());
     }
   }
+  for (const pid of pids) {
+    spawnSync('taskkill', ['/PID', pid, '/T', '/F'], { stdio: 'ignore' });
+  }
+
+  // Sapuan terakhir: server "next start" milik folder ini yang tersisa.
+  spawnSync(
+    'powershell',
+    [
+      '-NoProfile',
+      '-Command',
+      `Get-CimInstance Win32_Process -Filter "Name='node.exe'" | Where-Object { $_.CommandLine -match 'next' -and $_.CommandLine -match '-p ${PORT}|start' -and $_.CommandLine -notmatch 'dev' -and $_.CommandLine -match [regex]::Escape((Get-Location).Path) } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`,
+    ],
+    { stdio: 'ignore' },
+  );
 }
 
 process.exit(exitCode);

@@ -13,6 +13,7 @@ import {
   setField,
   sleep,
   submitForm,
+  waitFor,
 } from './helpers.mjs';
 
 const report = createReporter();
@@ -102,8 +103,10 @@ try {
   const orderBefore = (await db.query('select name from "Skill" order by "sortOrder"')).rows.map((r) => r.name);
   await page.goto(`${BASE}/admin/skills`, { waitUntil: 'networkidle0' });
   await page.click(`button[data-action="move-up"][data-id="${docker.id}"]`);
-  await sleep(1500);
-  const orderAfter = (await db.query('select name from "Skill" order by "sortOrder"')).rows.map((r) => r.name);
+  const orderAfter = await waitFor(
+    async () => (await db.query('select name from "Skill" order by "sortOrder"')).rows.map((r) => r.name),
+    (names) => names.join(',') !== orderBefore.join(','),
+  );
   report.check('6a. Tombol naik menukar posisi', orderAfter.indexOf('Docker') === orderBefore.indexOf('Docker') - 1, `${orderBefore.join(',')} -> ${orderAfter.join(',')}`);
   const orders = (await db.query('select "sortOrder" from "Skill" order by "sortOrder"')).rows.map((r) => r.sortOrder);
   report.check('6b. Nomor urutan tetap unik', new Set(orders).size === orders.length, orders.join(','));

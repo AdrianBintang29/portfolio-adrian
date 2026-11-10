@@ -13,6 +13,7 @@ import {
   setField,
   sleep,
   submitForm,
+  waitFor,
 } from './helpers.mjs';
 
 const report = createReporter();
@@ -141,8 +142,10 @@ try {
   const gamma = await projectBySlug('gamma');
   await page.goto(`${BASE}/admin/projects`, { waitUntil: 'networkidle0' });
   await page.click(`button[data-action="move-up"][data-id="${gamma.id}"]`);
-  await sleep(1500);
-  const after = (await db.query('select slug from "Project" order by "sortOrder"')).rows.map((r) => r.slug);
+  const after = await waitFor(
+    async () => (await db.query('select slug from "Project" order by "sortOrder"')).rows.map((r) => r.slug),
+    (slugs) => slugs.join(',') !== before.join(','),
+  );
   report.check('8a. Tombol naik menukar posisi dengan project di atasnya', after.indexOf('gamma') === before.indexOf('gamma') - 1, `${before.join(',')} -> ${after.join(',')}`);
   const orders = (await db.query('select "sortOrder" from "Project" order by "sortOrder"')).rows.map((r) => r.sortOrder);
   report.check('8b. Nomor urutan tetap unik', new Set(orders).size === orders.length, orders.join(','));
