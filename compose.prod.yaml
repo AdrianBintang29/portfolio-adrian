@@ -40,7 +40,7 @@ services:
   # Profile "tools" membuatnya TIDAK ikut menyala saat "docker compose up", jadi update biasa
   # tidak bisa mengubah struktur database tanpa disengaja.
   migrate:
-    image: portfolio-adrian-migrator:1.1
+    image: portfolio-adrian-migrator:1.2
     build:
       context: .
       dockerfile: Dockerfile

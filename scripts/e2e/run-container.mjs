@@ -61,7 +61,7 @@ for (const file of ['api-e2e.mjs', 'admin-e2e.mjs', 'content-e2e.mjs', 'projects
   let result = runFile(file);
 
   const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
-  const assertionFailed = /^GAGAL\s+(?!Tes selesai)/m.test(output);
+  const assertionFailed = /^GAGAL\s+(?!\s*Tes selesai)/m.test(output);
   const navigationTimeout = /Navigation timeout/.test(output);
 
   if (result.status !== 0 && navigationTimeout && !assertionFailed) {

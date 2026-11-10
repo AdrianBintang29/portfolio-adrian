@@ -1,0 +1,14 @@
+{
+  "name": "portfolio-migrator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dependency minimal untuk pekerjaan database di server: migrate, seed, create-admin. Sengaja terpisah dari package.json aplikasi supaya image migrator tidak membawa Next.js, TypeScript, ESLint, dan lainnya.",
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "bcryptjs": "3.0.3",
+    "dotenv": "18.0.9",
+    "prisma": "7.10.1",
+    "tsx": "4.23.15"
+  }
+}

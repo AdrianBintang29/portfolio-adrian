@@ -26,17 +26,21 @@ RUN npm run build
 #   docker compose run --rm migrate npx tsx prisma/create-admin.ts   (tambahkan -it, butuh terminal)
 # Dipisah dari image aplikasi supaya aplikasi tidak membawa alat migrasi dan tidak punya
 # alasan untuk mengubah struktur database saat berjalan.
+#
+# Image ini memakai package.json SENDIRI (deploy/migrator), bukan milik aplikasi. Skrip database hanya
+# butuh 6 paket, sedangkan aplikasi membawa Next.js, TypeScript, ESLint, dan lainnya yang tidak dipakai
+# di sini. Hasilnya image migrator jauh lebih kecil, jadi kiriman ke VPS lebih ringan.
+# Versi Prisma di deploy/migrator/package.json HARUS sama dengan versi di package.json aplikasi.
 FROM base AS migrator
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=deps /app/node_modules ./node_modules
-COPY package.json ./
+COPY deploy/migrator/package.json deploy/migrator/package-lock.json ./
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --no-audit --no-fund
 COPY prisma ./prisma
 COPY prisma.config.ts ./
-# Skrip seed dan create-admin memakai client Prisma hasil generate.
+# Skrip seed dan create-admin memakai client Prisma hasil generate dari tahap builder.
 COPY --from=builder /app/src/generated ./src/generated
 # User non-root hanya perlu MEMBACA file di atas, jadi tidak perlu memiliki seluruh node_modules.
-# Menjalankan chown -R pada node_modules memakan waktu lama untuk hasil yang tidak berguna.
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 --ingroup nodejs nextjs
 USER nextjs

@@ -1,0 +1,3 @@
+# Skrip shell harus selalu memakai akhir baris Unix (LF). Kalau tidak, bash di Ubuntu/VPS gagal
+# membacanya ("bad interpreter" atau "$'\r': command not found") karena Git di Windows mengubahnya ke CRLF.
+*.sh text eol=lf

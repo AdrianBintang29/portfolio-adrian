@@ -44,21 +44,29 @@ Jangan menjalankan `cat .env`.
 
 ## Mengirim image dari laptop
 
-Dijalankan di Ubuntu laptop:
+Dijalankan di Ubuntu laptop, dari folder project, setelah semua perubahan di-commit:
 
 ```bash
-docker build --target runner   -t portfolio-adrian:1.1 .
-docker build --target migrator -t portfolio-adrian-migrator:1.1 .
-docker pull postgres:16-alpine
-docker save portfolio-adrian:1.1 portfolio-adrian-migrator:1.1 postgres:16-alpine | gzip > /tmp/portfolio-images.tar.gz
-sha256sum /tmp/portfolio-images.tar.gz
-rsync -avP /tmp/portfolio-images.tar.gz portfolio-vps:/opt/portfolio/
+bash deploy/pack.sh      # membangun image dari commit aktif, membungkusnya, dan membuat segel sha256
+eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519
+bash deploy/send.sh      # mengirim ke VPS, mengulang sendiri kalau macet, lalu mencocokkan segel di VPS
 ```
 
-Di VPS, cocokkan `sha256sum` lalu buka kirimannya:
+Koneksi ke VPS ini lambat (sekitar 195 ms) dan kadang macet di tengah jalan. `send.sh` memakai
+`rsync --partial --append-verify`, jadi setiap percobaan ulang melanjutkan dari bagian yang sudah sampai.
+Tidak perlu menekan Ctrl+C. Di akhir ia menjalankan `sha256sum -c` di VPS, dan kalau segel tidak cocok ia
+membuang salinan itu lalu mengirim ulang dari awal.
+
+Image yang dibangun: `portfolio-adrian:1.1` (aplikasi), `portfolio-adrian-migrator:1.2` (migrasi, seed, dan
+create-admin, memakai dependency minimalnya sendiri di `deploy/migrator/`), dan `postgres:16-alpine`.
+
+Versi Prisma di `deploy/migrator/package.json` harus sama dengan versi di `package.json` aplikasi. Kalau salah
+satunya dinaikkan, naikkan yang lain lalu jalankan `npm install --package-lock-only` di folder migrator.
+
+Di VPS, buka kirimannya setelah `send.sh` melaporkan `SELESAI`:
 
 ```bash
-sha256sum portfolio-images.tar.gz
+cd /opt/portfolio
 gunzip -c portfolio-images.tar.gz | docker load
 ```
 
