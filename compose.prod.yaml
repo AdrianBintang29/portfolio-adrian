@@ -1,23 +1,91 @@
 services:
+  # PostgreSQL hanya ada di Docker network. TIDAK ada "ports:", jadi tidak bisa dijangkau dari luar VPS,
+  # bahkan dari loopback. Hanya container di network ini (portfolio dan migrate) yang bisa bicara dengannya.
+  # Data ada di named volume, jadi tidak hilang saat container dibuat ulang.
+  postgres:
+    image: postgres:16-alpine
+    container_name: portfolio-postgres
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: portfolio
+    volumes:
+      - portfolio_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    # VPS hanya punya 1 GB RAM dan tanpa swap. Batas ini mencegah database memakan semuanya
+    # lalu membuat proses lain dimatikan paksa oleh kernel.
+    mem_limit: 256m
+    # Pengaturan hemat memori untuk database sekecil ini.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - max_connections=30
+      - -c
+      - work_mem=2MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - effective_cache_size=128MB
+    restart: unless-stopped
+
+  # Menjalankan migrasi database sekali, lalu selesai. Dipanggil manual saat deploy:
+  #   docker compose -f compose.prod.yaml run --rm migrate
+  # Profile "tools" membuatnya TIDAK ikut menyala saat "docker compose up", jadi update biasa
+  # tidak bisa mengubah struktur database tanpa disengaja.
+  migrate:
+    image: portfolio-adrian-migrator:1.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+    environment:
+      DATABASE_URL: postgresql://portfolio:${POSTGRES_PASSWORD}@postgres:5432/portfolio?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+    restart: "no"
+
   # Portfolio hanya tersedia di Docker network; trafik publik masuk lewat NPM/Tunnel.
+  # Nama container dan port (portfolio:3000) TIDAK BOLEH berubah: itulah alamat yang dipakai
+  # Proxy Host di Nginx Proxy Manager.
   portfolio:
     build:
       context: .
       dockerfile: Dockerfile
-    image: portfolio-adrian:1.0
+      target: runner
+    image: portfolio-adrian:1.1
     container_name: portfolio
     expose:
       - "3000"
+    environment:
+      DATABASE_URL: postgresql://portfolio:${POSTGRES_PASSWORD}@postgres:5432/portfolio?schema=public
+      SESSION_SECRET: ${SESSION_SECRET}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - portfolio_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test:
         - CMD
         - node
         - -e
-        - fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+        - fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 20s
+    mem_limit: 300m
     restart: unless-stopped
 
   # Dashboard admin hanya bind ke loopback VPS dan diakses melalui SSH tunnel.
@@ -71,3 +139,7 @@ volumes:
     name: npm_data
   npm_letsencrypt:
     name: npm_letsencrypt
+  portfolio_postgres_data:
+    name: portfolio_postgres_data
+  portfolio_uploads:
+    name: portfolio_uploads

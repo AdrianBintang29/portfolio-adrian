@@ -34,8 +34,19 @@ export function createReporter() {
 export async function connectDb() {
   const url = process.env.E2E_DATABASE_URL;
 
-  if (!url || !url.includes('portfolio_test')) {
-    throw new Error('E2E_DATABASE_URL wajib menunjuk ke database portfolio_test.');
+  // Pengaman: tes menghapus dan mengisi ulang data, jadi hanya boleh menyentuh database tes.
+  // Dua keadaan yang diizinkan:
+  //  1. database bernama "portfolio_test" (database tes di laptop), atau
+  //  2. tes terhadap container, yang HARUS ditandai E2E_ALLOW_DB_NAME=portfolio dan menunjuk
+  //     ke port 5434 milik compose.test.yaml. Port itu tidak ada di production.
+  const isLocalTestDb = Boolean(url) && url.includes('portfolio_test');
+  const isContainerTestDb =
+    Boolean(url) &&
+    process.env.E2E_ALLOW_DB_NAME === 'portfolio' &&
+    url.includes('@127.0.0.1:5434/portfolio');
+
+  if (!isLocalTestDb && !isContainerTestDb) {
+    throw new Error('E2E_DATABASE_URL wajib menunjuk ke database tes (portfolio_test, atau container tes di port 5434).');
   }
 
   const db = new pg.Client({ connectionString: url });

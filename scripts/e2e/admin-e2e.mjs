@@ -1,18 +1,7 @@
 // Tes ujung ke ujung untuk admin panel. Berjalan di database TERPISAH (portfolio_test),
 // bukan database asli. Jalankan lewat: npm run test:e2e
-import puppeteer from 'puppeteer-core';
 import { hash } from 'bcryptjs';
-import pg from 'pg';
-
-const BASE = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3200';
-const DB_URL = process.env.E2E_DATABASE_URL;
-const CHROME =
-  process.env.CHROME_PATH ?? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const PASSWORD = 'password-tes-12345';
-
-if (!DB_URL || !DB_URL.includes('portfolio_test')) {
-  throw new Error('E2E_DATABASE_URL wajib menunjuk ke database portfolio_test.');
-}
+import { BASE, PASSWORD, connectDb, launch } from './helpers.mjs';
 
 const results = [];
 function check(name, ok, detail = '') {
@@ -20,8 +9,7 @@ function check(name, ok, detail = '') {
   console.log(`${ok ? 'LOLOS' : 'GAGAL'}  ${name}${detail ? ` -> ${detail}` : ''}`);
 }
 
-const db = new pg.Client({ connectionString: DB_URL });
-await db.connect();
+const db = await connectDb();
 
 async function resetData() {
   await db.query('delete from "Session"');
@@ -45,7 +33,7 @@ async function dbProfile() {
 
 await resetData();
 
-const browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
+const browser = await launch();
 
 async function newPage() {
   const ctx = await browser.createBrowserContext();

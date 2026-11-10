@@ -6,7 +6,23 @@ Dockerfile
 .dockerignore
 npm-debug.log*
 dev.log
+*.tsbuildinfo
+
+# Rahasia tidak boleh masuk image. Di VPS nilainya datang dari environment container.
 .env*
+
+# Bukan bagian aplikasi
 README.md
 AGENTS.md
 CLAUDE.md
+DEPLOYMENT.md
+.vscode
+scripts
+compose*.yaml
+backups
+
+# Dibuat ulang di dalam image (prisma generate), jangan bawa salinan laptop
+src/generated
+
+# Gambar unggahan milik laptop tidak boleh ikut. Di server disimpan di Docker volume.
+public/uploads
