@@ -7,7 +7,7 @@ services:
     container_name: portfolio-postgres
     environment:
       POSTGRES_USER: portfolio
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD belum diisi di file .env}
       POSTGRES_DB: portfolio
     volumes:
       - portfolio_postgres_data:/var/lib/postgresql/data
@@ -46,7 +46,7 @@ services:
       dockerfile: Dockerfile
       target: migrator
     environment:
-      DATABASE_URL: postgresql://portfolio:${POSTGRES_PASSWORD}@postgres:5432/portfolio?schema=public
+      DATABASE_URL: postgresql://portfolio:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD belum diisi di file .env}@postgres:5432/portfolio?schema=public
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,8 +67,8 @@ services:
     expose:
       - "3000"
     environment:
-      DATABASE_URL: postgresql://portfolio:${POSTGRES_PASSWORD}@postgres:5432/portfolio?schema=public
-      SESSION_SECRET: ${SESSION_SECRET}
+      DATABASE_URL: postgresql://portfolio:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD belum diisi di file .env}@postgres:5432/portfolio?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET belum diisi di file .env}
       UPLOAD_DIR: /app/uploads
     volumes:
       - portfolio_uploads:/app/uploads
@@ -127,7 +127,7 @@ services:
       - --no-autoupdate
       - run
       - --token
-      - ${CLOUDFLARE_TUNNEL_TOKEN}
+      - ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN belum diisi di file .env}
     depends_on:
       - nginx-proxy-manager
     restart: unless-stopped

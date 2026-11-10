@@ -1,111 +1,112 @@
-# VPS Deployment
-
-Dokumen ini dipakai setelah akses VPS portfolio dikonfirmasi.
+# Deployment ke VPS
 
 ## Arsitektur
 
 ```text
-Browser -> Cloudflare HTTPS -> Cloudflare Tunnel -> Nginx Proxy Manager -> portfolio:3000
+Browser -> Cloudflare HTTPS -> Cloudflare Tunnel -> Nginx Proxy Manager -> portfolio:3000 -> postgres:5432
 ```
 
-Alur sederhananya:
-
-1. Browser meminta domain portfolio melalui HTTPS.
-2. Cloudflare menerima HTTPS dan meneruskan request ke Tunnel.
-3. `cloudflared` di VPS meneruskan request ke `nginx-proxy-manager:80`.
-4. Nginx Proxy Manager membaca hostname lalu memilih Proxy Host.
-5. Proxy Host meneruskan request ke `portfolio:3000` melalui Docker network.
-6. Next.js di dalam container mengirim response kembali melalui jalur yang sama.
+1. Browser meminta domain lewat HTTPS dan diterima Cloudflare.
+2. Cloudflare meneruskan ke Tunnel. `cloudflared` di VPS meneruskan ke `nginx-proxy-manager:80`.
+3. Nginx Proxy Manager membaca hostname lalu meneruskan ke `portfolio:3000` lewat Docker network.
+4. Aplikasi Next.js membaca dan menulis data ke `postgres:5432`, juga di dalam Docker network.
 
 - Port `80` dan `443` dibuka untuk trafik web publik.
-- Port portfolio `3000` hanya tersedia di Docker network.
-- Dashboard Nginx Proxy Manager `81` dan Portainer `9443` hanya bind ke loopback VPS.
-- Dashboard admin diakses dari laptop melalui SSH tunnel.
-- Token Cloudflare Tunnel disimpan hanya di `.env` VPS dan tidak dikomit ke Git.
+- Port `3000` (aplikasi) dan `5432` (database) hanya ada di Docker network. Database tidak punya `ports:` sama sekali.
+- Dashboard Nginx Proxy Manager `81` dan Portainer `9443` hanya bind ke loopback VPS, diakses lewat SSH tunnel.
+- Semua rahasia hanya ada di `/opt/portfolio/.env` di VPS dan tidak masuk Git atau image.
 
-## Audit Awal VPS
+## Aturan emas untuk VPS 1 GB
 
-Jalankan perintah baca-saja sebelum memasang atau mengubah apa pun:
+1. **VPS tidak pernah membangun image.** Image dibangun di laptop dan dikirim dengan `docker save`.
+2. **Semua perintah `docker compose up` di VPS memakai `--no-build`.**
+3. **Jangan menyentuh volume.** Jangan pernah menjalankan `docker volume prune` atau `docker system prune --volumes`.
+4. **Update hanya service yang berubah**, dengan `--no-deps --force-recreate <nama-service>`.
 
-```bash
-whoami
-hostname
-cat /etc/os-release
-uptime
-free -h
-df -h
-ss -tuln
-docker --version
-docker compose version
+## File `.env` di VPS
+
+```text
+CLOUDFLARE_TUNNEL_TOKEN=...   (sudah ada)
+POSTGRES_PASSWORD=...         (dibuat di VPS)
+SESSION_SECRET=...            (dibuat di VPS)
 ```
 
-Pastikan VPS memang ditujukan untuk portfolio dan port `80`/`443` tidak dipakai layanan lain.
-
-## Menjalankan Stack
-
-Dari direktori repository:
+Buat nilai baru langsung di VPS, jangan salin dari laptop dan jangan tampilkan:
 
 ```bash
-docker compose -f compose.prod.yaml config
-docker compose -f compose.prod.yaml up -d --build
+printf 'POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 24)" >> .env
+printf 'SESSION_SECRET=%s\n'    "$(openssl rand -hex 32)" >> .env
+chmod 600 .env
+```
+
+`compose.prod.yaml` berhenti dengan pesan jelas kalau salah satu dari tiga nilai ini kosong.
+Jangan menjalankan `cat .env`.
+
+## Mengirim image dari laptop
+
+Dijalankan di Ubuntu laptop:
+
+```bash
+docker build --target runner   -t portfolio-adrian:1.1 .
+docker build --target migrator -t portfolio-adrian-migrator:1.1 .
+docker pull postgres:16-alpine
+docker save portfolio-adrian:1.1 portfolio-adrian-migrator:1.1 postgres:16-alpine | gzip > /tmp/portfolio-images.tar.gz
+sha256sum /tmp/portfolio-images.tar.gz
+rsync -avP /tmp/portfolio-images.tar.gz portfolio-vps:/opt/portfolio/
+```
+
+Di VPS, cocokkan `sha256sum` lalu buka kirimannya:
+
+```bash
+sha256sum portfolio-images.tar.gz
+gunzip -c portfolio-images.tar.gz | docker load
+```
+
+## Menjalankan dan memperbarui
+
+```bash
+docker compose -f compose.prod.yaml config --quiet
+docker compose -f compose.prod.yaml up -d --no-build postgres
+docker compose -f compose.prod.yaml --profile tools run --rm migrate
+docker compose -f compose.prod.yaml up -d --no-build --no-deps --force-recreate portfolio
 docker compose -f compose.prod.yaml ps
 ```
 
-Sebelum menjalankan stack, buat `.env` di VPS:
-
-```text
-CLOUDFLARE_TUNNEL_TOKEN=token-rahasia-dari-Cloudflare
-```
-
-Lindungi file tersebut:
+Setelah database pertama kali dibuat, isi data awal dan buat akun admin (password diketik sendiri):
 
 ```bash
-chmod 600 .env
+docker compose -f compose.prod.yaml --profile tools run --rm migrate npx tsx prisma/seed.ts
+docker compose -f compose.prod.yaml --profile tools run --rm -it migrate npx tsx prisma/create-admin.ts
 ```
 
 Lihat log:
 
 ```bash
 docker compose -f compose.prod.yaml logs --tail 100 portfolio
-docker compose -f compose.prod.yaml logs --tail 100 nginx-proxy-manager
-docker compose -f compose.prod.yaml logs --tail 100 portainer
-docker compose -f compose.prod.yaml logs --tail 100 cloudflared
+docker compose -f compose.prod.yaml logs --tail 100 postgres
 ```
 
-## SSH Tunnel Dashboard Admin
+## SSH tunnel dashboard admin
 
-Jalankan dari laptop. Ganti `USER` dan `IP_VPS` dengan data VPS yang sah.
-
-Nginx Proxy Manager:
+Dijalankan dari laptop:
 
 ```bash
-ssh -L 8181:127.0.0.1:81 USER@IP_VPS
+ssh -L 8181:127.0.0.1:81 portfolio-vps      # Nginx Proxy Manager: http://localhost:8181
+ssh -L 9443:127.0.0.1:9443 portfolio-vps    # Portainer: https://localhost:9443
 ```
-
-Buka `http://localhost:8181`.
-
-Portainer:
-
-```bash
-ssh -L 9443:127.0.0.1:9443 USER@IP_VPS
-```
-
-Buka `https://localhost:9443`.
 
 ## Proxy Host
 
-Setelah domain mengarah ke IP VPS, buat Proxy Host:
+Aturan di Nginx Proxy Manager tidak perlu diubah selama nama container dan port tetap:
 
 ```text
-Domain Names: domain yang diberikan
+Domain Names: portfolio-adrian.web.id
 Scheme: http
 Forward Hostname: portfolio
 Forward Port: 3000
-Block Common Exploits: aktif
-Websockets Support: aktif
 ```
 
-Setelah DNS selesai propagasi, minta sertifikat Let's Encrypt dan aktifkan Force SSL.
+Karena itu `container_name: portfolio` dan `expose: 3000` di `compose.prod.yaml` tidak boleh berubah.
 
 ## DNS dan Cloudflare Tunnel
 
@@ -114,38 +115,50 @@ Setelah DNS selesai propagasi, minta sertifikat Let's Encrypt dan aktifkan Force
 - `CNAME`: satu nama domain menjadi alias nama domain lain.
 - Untuk VPS NAT ini, Cloudflare Tunnel dipakai agar trafik publik tidak bergantung pada inbound port forwarding.
 - Public hostname tunnel meneruskan `portfolio-adrian.web.id` ke `http://nginx-proxy-manager:80`.
-- Nginx Proxy Manager kemudian meneruskan hostname tersebut ke `http://portfolio:3000`.
 
-## Backup Volume
+## Backup
 
-Jangan menghapus volume saat melakukan update. Volume persisten:
+Volume yang harus dijaga:
 
 ```text
 portainer_data
 npm_data
 npm_letsencrypt
+portfolio_postgres_data     (database)
+portfolio_uploads           (gambar unggahan)
 ```
 
-Sebelum perubahan besar, hentikan stack dan buat arsip backup:
+Sebelum perubahan besar:
 
 ```bash
-docker compose -f compose.prod.yaml stop
-mkdir -p backups
-docker run --rm -v portainer_data:/source:ro -v "$PWD/backups:/backup" alpine tar czf /backup/portainer_data.tar.gz -C /source .
-docker run --rm -v npm_data:/source:ro -v "$PWD/backups:/backup" alpine tar czf /backup/npm_data.tar.gz -C /source .
-docker run --rm -v npm_letsencrypt:/source:ro -v "$PWD/backups:/backup" alpine tar czf /backup/npm_letsencrypt.tar.gz -C /source .
-docker compose -f compose.prod.yaml start
+docker tag portfolio-adrian:1.0 portfolio-adrian:before-rebuild
+cp compose.prod.yaml compose.prod.yaml.before-rebuild
+cp -p .env .env.before-rebuild
+mkdir -p backups && chmod 700 backups
+for v in npm_data npm_letsencrypt portainer_data; do
+  docker run --rm -v $v:/source:ro -v "$PWD/backups:/backup" node:22-alpine \
+    tar czf /backup/$v.tar.gz -C /source .
+done
 ```
 
-Folder `backups/` dapat berisi data sensitif dan tidak boleh dikomit ke Git.
-
-## Update dan Rollback
-
-Update source dan image:
+Backup database sebaiknya memakai dump, bukan menyalin folder datanya:
 
 ```bash
-git pull
-docker compose -f compose.prod.yaml up -d --build
+docker compose -f compose.prod.yaml exec -T postgres pg_dump -U portfolio portfolio | gzip > backups/portfolio-db-$(date +%F).sql.gz
 ```
 
-Periksa status dan log setelah update. Jika build baru bermasalah, kembali ke commit yang sebelumnya telah diuji, lalu build ulang. Jangan memakai perintah destruktif seperti `docker system prune --volumes` pada server produksi.
+Folder `backups/` berisi data sensitif dan tidak boleh masuk Git.
+
+## Rollback
+
+Kalau versi baru bermasalah:
+
+```bash
+cp compose.prod.yaml compose.prod.yaml.gagal
+cp compose.prod.yaml.before-rebuild compose.prod.yaml
+docker tag portfolio-adrian:before-rebuild portfolio-adrian:1.0
+docker compose -f compose.prod.yaml up -d --no-build --no-deps --force-recreate portfolio
+```
+
+Volume database dan unggahan tidak dihapus oleh rollback, jadi data tetap aman. Jangan menghapus image
+`before-rebuild` sebelum versi baru terbukti stabil.
