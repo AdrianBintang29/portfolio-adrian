@@ -26,3 +26,7 @@ src/generated
 
 # Gambar unggahan milik laptop tidak boleh ikut. Di server disimpan di Docker volume.
 public/uploads
+
+# Alat bantu desain dan hasil kerjanya, bukan bagian aplikasi
+.agents
+.taste-skill

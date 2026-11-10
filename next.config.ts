@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Tidak perlu memberi tahu pengunjung bahwa situs ini memakai Next.js.
+  poweredByHeader: false,
   experimental: {
     serverActions: {
       // Batas bawaan 1 MB terlalu kecil untuk gambar. Batas gambar yang sebenarnya (2 MB)

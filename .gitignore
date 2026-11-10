@@ -48,3 +48,6 @@ dev.log
 
 # gambar unggahan admin (di VPS disimpan di Docker volume)
 /public/uploads/
+
+# hasil kerja alat desain (screenshot, laporan)
+/.taste-skill/
