@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth/session';
 import { getPrisma } from '@/lib/db/prisma';
-import { deleteUploadByUrl, readImageChange } from '@/lib/uploads';
 import { isHttpUrl, readText } from '@/lib/validation';
 
 export type ProfileFields = {
@@ -82,24 +81,10 @@ export async function updateProfile(
     return { error: 'Profil belum ada di database. Jalankan npm run db:seed.', values };
   }
 
-  const image = await readImageChange(formData);
-
-  if (!image.ok) {
-    return { error: image.error, values };
-  }
-
   await prisma.profile.update({
     where: { id: profile.id },
-    data: {
-      ...values,
-      githubUrl: values.githubUrl || null,
-      ...(image.changed ? { avatarUrl: image.url } : {}),
-    },
+    data: { ...values, githubUrl: values.githubUrl || null },
   });
-
-  if (image.changed) {
-    await deleteUploadByUrl(profile.avatarUrl);
-  }
 
   revalidatePath('/');
   revalidatePath('/admin/profile');

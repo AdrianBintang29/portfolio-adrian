@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { getProfile } from '@/lib/db/queries';
 
 export async function Hero() {
@@ -39,27 +38,13 @@ export async function Hero() {
         </div>
       </div>
 
-      {profile.avatarUrl ? (
-        <div className="relative aspect-square min-h-72 border border-navy md:min-h-96">
-          <Image
-            src={profile.avatarUrl}
-            alt={`Foto ${profile.name}`}
-            fill
-            unoptimized
-            priority
-            sizes="(min-width: 768px) 40vw, 100vw"
-            className="object-cover"
-          />
-        </div>
-      ) : (
-        <div
-          aria-label="Placeholder foto profile"
-          role="img"
-          className="flex aspect-square min-h-72 items-center justify-center border border-navy bg-navy-soft text-center text-sm font-bold uppercase tracking-[0.2em] text-paper md:min-h-96"
-        >
-          Placeholder foto
-        </div>
-      )}
+      <div
+        aria-label="Placeholder foto profile"
+        role="img"
+        className="flex aspect-square min-h-72 items-center justify-center border border-navy bg-navy-soft text-center text-sm font-bold uppercase tracking-[0.2em] text-paper md:min-h-96"
+      >
+        Placeholder foto
+      </div>
     </section>
   );
 }

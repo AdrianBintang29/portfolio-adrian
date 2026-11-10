@@ -1,5 +1,5 @@
-// Tes ujung ke ujung untuk unggah gambar. Berjalan di database dan folder unggahan TERPISAH.
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+// Tes ujung ke ujung untuk unggah gambar project. Berjalan di database dan folder unggahan TERPISAH.
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
@@ -10,7 +10,6 @@ import {
   login,
   newSession,
   pageText,
-  publicText,
   resetAdmin,
   sleep,
 } from './helpers.mjs';
@@ -24,7 +23,6 @@ if (!UPLOAD_DIR || !UPLOAD_DIR.toLowerCase().includes('e2e')) {
 }
 
 const work = path.join(tmpdir(), 'portfolio-e2e-files');
-const { mkdirSync } = await import('node:fs');
 mkdirSync(work, { recursive: true });
 
 // PNG 1x1 yang valid.
@@ -63,28 +61,40 @@ const files = {
 };
 
 const uploaded = () => (existsSync(UPLOAD_DIR) ? readdirSync(UPLOAD_DIR) : []);
-const avatar = async () => (await db.query('select "avatarUrl" from "Profile" limit 1')).rows[0].avatarUrl;
-const projectImage = async (slug) =>
-  (await db.query('select "imageUrl" from "Project" where slug = $1', [slug])).rows[0]?.imageUrl;
+const projectImage = async () =>
+  (await db.query('select "imageUrl" from "Project" where slug = $1', ['project-gambar'])).rows[0]?.imageUrl ?? null;
 
 async function selectFile(page, filePath) {
   const input = await page.$('input[type=file]');
   await input.uploadFile(filePath);
 }
 
-async function save(page) {
+async function saveStay(page) {
   await page.click('button[type=submit]');
   await page.waitForFunction(() => !document.querySelector('button[type=submit]')?.disabled, { timeout: 20000 });
   await sleep(900);
 }
 
+async function saveAndLeave(page) {
+  await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('button[type=submit]')]);
+}
+
+async function publicHasImage(ctx, url) {
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle0' });
+  const found = await page.$(`img[src*="${url}"], img[src*="${encodeURIComponent(url)}"]`);
+  await page.close();
+  return Boolean(found);
+}
+
 await resetAdmin(db);
-await db.query('update "Profile" set "avatarUrl" = null');
 await db.query('delete from "Project"');
 await db.query(
   `insert into "Project"(id, title, slug, summary, stack, "sortOrder", "updatedAt")
    values (gen_random_uuid(), 'Project Gambar', 'project-gambar', 'Untuk tes gambar.', '{X}', 0, now())`,
 );
+const row = (await db.query('select id from "Project" where slug = $1', ['project-gambar'])).rows[0];
+const editUrl = `${BASE}/admin/projects/${row.id}`;
 
 const browser = await launch();
 
@@ -92,12 +102,16 @@ try {
   const { page, ctx } = await newSession(browser);
   await login(page);
 
-  // Tes 1: unggah foto profil PNG yang valid.
+  // Tes 0: profil tidak lagi memiliki kolom foto.
   await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  report.check('0. Form profil tidak punya kolom unggah foto', !(await page.$('input[type=file]')));
+
+  // Tes 1: unggah gambar project PNG yang valid.
+  await page.goto(editUrl, { waitUntil: 'networkidle0' });
   await selectFile(page, files.png);
-  await save(page);
-  const url1 = await avatar();
-  report.check('1a. Foto profil tersimpan di database sebagai /uploads/<uuid>.png', /^\/uploads\/[0-9a-f-]{36}\.png$/.test(url1 ?? ''), String(url1));
+  await saveAndLeave(page);
+  const url1 = await projectImage();
+  report.check('1a. Gambar tersimpan sebagai /uploads/<uuid>.png', /^\/uploads\/[0-9a-f-]{36}\.png$/.test(url1 ?? ''), String(url1));
   report.check('1b. File benar-benar ada di folder unggahan', uploaded().length === 1, uploaded().join(','));
   const served = await ctx.newPage();
   const response = await served.goto(`${BASE}${url1}`, { waitUntil: 'networkidle0' });
@@ -105,20 +119,14 @@ try {
   report.check('1d. Jenis konten image/png', response.headers()['content-type'] === 'image/png', response.headers()['content-type']);
   report.check('1e. Header nosniff terpasang', response.headers()['x-content-type-options'] === 'nosniff');
   await served.close();
-  report.check('1f. Foto tampil di halaman publik', (await (async () => {
-    const p = await ctx.newPage();
-    await p.goto(`${BASE}/`, { waitUntil: 'networkidle0' });
-    const has = await p.$(`img[src*="${url1}"], img[src*="${encodeURIComponent(url1)}"]`);
-    await p.close();
-    return Boolean(has);
-  })()));
+  report.check('1f. Gambar tampil di kartu halaman publik', await publicHasImage(ctx, url1));
 
-  // Tes 2: mengganti foto menghapus file lama.
-  await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  // Tes 2: mengganti gambar menghapus file lama.
+  await page.goto(editUrl, { waitUntil: 'networkidle0' });
   await selectFile(page, files.jpg);
-  await save(page);
-  const url2 = await avatar();
-  report.check('2a. Foto diganti, alamat berubah', url2 !== url1 && /\.jpg$/.test(url2 ?? ''), String(url2));
+  await saveAndLeave(page);
+  const url2 = await projectImage();
+  report.check('2a. Gambar diganti, alamat berubah', url2 !== url1 && /\.jpg$/.test(url2 ?? ''), String(url2));
   report.check('2b. File lama terhapus dari disk (tidak ada sampah)', uploaded().length === 1 && !uploaded().includes(path.basename(url1)), uploaded().join(','));
 
   // Tes 3: EXIF/GPS dibuang dari JPEG.
@@ -132,49 +140,41 @@ try {
     ['4b. SVG berisi skrip', 'svg'],
     ['4c. HTML yang diberi nama .png', 'html'],
   ]) {
-    await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+    await page.goto(editUrl, { waitUntil: 'networkidle0' });
     const before = uploaded().length;
     await selectFile(page, files[key]);
-    await save(page);
+    await saveStay(page);
     const text = await pageText(page);
     report.check(`${label} ditolak`, text.includes('Format gambar tidak didukung'));
     report.check(`${label} tidak tersimpan di disk`, uploaded().length === before);
+    report.check(`${label} tidak mengubah gambar project`, (await projectImage()) === url2);
   }
 
   // Tes 5: file terlalu besar ditolak.
-  await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  await page.goto(editUrl, { waitUntil: 'networkidle0' });
   const beforeBig = uploaded().length;
   await selectFile(page, files.big);
-  await save(page);
+  await saveStay(page);
   const bigText = await pageText(page);
   report.check('5a. Gambar di atas 2 MB ditolak dengan pesan yang jelas', bigText.includes('terlalu besar') || bigText.includes('maksimal'));
   report.check('5b. Gambar besar tidak tersimpan', uploaded().length === beforeBig);
 
-  // Tes 6: hapus foto lewat centang.
-  await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  // Tes 6: hapus gambar lewat centang.
+  await page.goto(editUrl, { waitUntil: 'networkidle0' });
   await page.click('input[name=removeImage]');
-  await save(page);
-  report.check('6a. Setelah dihapus, avatarUrl kembali kosong', (await avatar()) === null);
+  await saveAndLeave(page);
+  report.check('6a. Setelah dihapus, imageUrl kembali kosong', (await projectImage()) === null);
   report.check('6b. File fisik ikut terhapus', uploaded().length === 0, uploaded().join(','));
 
-  // Tes 7: gambar project (tambah, ganti, hapus project ikut menghapus file).
-  const row = (await db.query('select id from "Project" where slug = $1', ['project-gambar'])).rows[0];
-  await page.goto(`${BASE}/admin/projects/${row.id}`, { waitUntil: 'networkidle0' });
+  // Tes 7: menghapus project ikut menghapus file gambarnya.
+  await page.goto(editUrl, { waitUntil: 'networkidle0' });
   await selectFile(page, files.png);
-  await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('button[type=submit]')]);
-  const projectUrl = await projectImage('project-gambar');
-  report.check('7a. Gambar project tersimpan', /^\/uploads\/.+\.png$/.test(projectUrl ?? ''), String(projectUrl));
-  const pubText = await publicText(ctx);
-  const pubPage = await ctx.newPage();
-  await pubPage.goto(`${BASE}/`, { waitUntil: 'networkidle0' });
-  const hasImg = await pubPage.$(`img[alt="Tampilan project Project Gambar"]`);
-  await pubPage.close();
-  report.check('7b. Gambar project tampil di kartu publik', Boolean(hasImg) && pubText.includes('Project Gambar'));
-
+  await saveAndLeave(page);
+  report.check('7a. Gambar terpasang lagi sebelum project dihapus', uploaded().length === 1);
   await page.goto(`${BASE}/admin/projects`, { waitUntil: 'networkidle0' });
   await page.click(`button[data-action="delete"][data-id="${row.id}"]`);
   await sleep(2000);
-  report.check('7c. Menghapus project ikut menghapus file gambarnya', uploaded().length === 0, uploaded().join(','));
+  report.check('7b. Menghapus project ikut menghapus file gambarnya', uploaded().length === 0, uploaded().join(','));
 
   // Tes 8: penyajian file hanya untuk nama buatan server.
   const probes = [
@@ -195,14 +195,16 @@ try {
   }
   report.check('8. Alamat sembarang dan path traversal tidak menyajikan file apa pun', allBlocked);
 
-  // Tes 9: tanpa login, tidak bisa mengunggah lewat server action.
-  await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  // Tes 9: tanpa sesi, tidak bisa mengunggah lewat server action.
+  await db.query('insert into "Project"(id, title, slug, summary, stack, "sortOrder", "updatedAt") values (gen_random_uuid(), $1, $2, $3, $4, 0, now())', ['Project Gambar', 'project-gambar', 'Untuk tes gambar.', ['X']]);
+  const row2 = (await db.query('select id from "Project" where slug = $1', ['project-gambar'])).rows[0];
+  await page.goto(`${BASE}/admin/projects/${row2.id}`, { waitUntil: 'networkidle0' });
   const filesBefore = uploaded().length;
   await selectFile(page, files.png);
   await db.query('delete from "Session"');
   await page.click('button[type=submit]');
   await sleep(2500);
-  report.check('9a. Setelah sesi dicabut, unggahan DITOLAK server', uploaded().length === filesBefore && (await avatar()) === null);
+  report.check('9a. Setelah sesi dicabut, unggahan DITOLAK server', uploaded().length === filesBefore && (await projectImage()) === null);
   report.check('9b. Pengguna dialihkan ke login', page.url().includes('/admin/login'), page.url());
 
   await ctx.close();

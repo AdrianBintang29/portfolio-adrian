@@ -24,7 +24,6 @@ export default async function AdminProfilePage() {
       </p>
 
       <ProfileForm
-        avatarUrl={profile.avatarUrl}
         defaults={{
           name: profile.name,
           fullName: profile.fullName,

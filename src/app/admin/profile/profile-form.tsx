@@ -1,19 +1,12 @@
 'use client';
 
 import { useActionState } from 'react';
-import { ImageField } from '@/components/admin/ImageField';
 import { TextField } from '@/components/admin/TextField';
 import { updateProfile, type ProfileFields, type ProfileState } from './profile-action';
 
 const initialState: ProfileState = {};
 
-export function ProfileForm({
-  defaults,
-  avatarUrl,
-}: {
-  defaults: ProfileFields;
-  avatarUrl: string | null;
-}) {
+export function ProfileForm({ defaults }: { defaults: ProfileFields }) {
   const [state, formAction, pending] = useActionState(updateProfile, initialState);
   const current = state.values ?? defaults;
 
@@ -72,8 +65,6 @@ export function ProfileForm({
         maxLength={200}
         hint="Boleh dikosongkan. Harus diawali https://"
       />
-
-      <ImageField label="Foto profil" currentUrl={avatarUrl} alt="Foto profil saat ini" />
 
       {state.error && (
         <p role="alert" className="text-sm font-bold text-red-700">
