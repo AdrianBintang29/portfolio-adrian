@@ -14,11 +14,17 @@ OUT="/tmp/portfolio-images.tar.gz"
 
 cd "$(dirname "$0")/.."
 
-# Kiriman harus berasal dari commit yang tersimpan dan sudah ada di GitHub,
-# bukan dari perubahan setengah jadi di laptop.
-if [ -n "$(git status --porcelain)" ]; then
+# Kiriman harus berasal dari commit yang tersimpan, bukan dari perubahan setengah jadi di laptop.
+#
+# Folder project ada di drive Windows (/mnt/c), dan Git di Windows memakai core.autocrlf=true sedangkan
+# Git di Ubuntu tidak. Tanpa penyesuaian, Git di Ubuntu mengira SETIAP file berubah hanya karena akhir
+# barisnya (CRLF di Windows, LF di Git). Kita meniru pengaturan Windows untuk satu perintah ini saja,
+# tanpa mengubah konfigurasi apa pun.
+dirty="$(git -c core.autocrlf=true status --porcelain)"
+
+if [ -n "$dirty" ]; then
   echo "BERHENTI: ada perubahan yang belum di-commit. Commit dulu supaya kiriman bisa dilacak." >&2
-  git status --short >&2
+  echo "$dirty" >&2
   exit 1
 fi
 
