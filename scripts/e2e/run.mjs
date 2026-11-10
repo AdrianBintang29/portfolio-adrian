@@ -38,18 +38,51 @@ const childEnv = {
   E2E_BASE_URL: `http://127.0.0.1:${PORT}`,
 };
 
-function run(label, command, args) {
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Koneksi ke database di Docker/WSL lewat localhost kadang gagal sekali (P1001) lalu berhasil
+// pada percobaan berikutnya. Itu kedipan jaringan laptop, bukan masalah aplikasi, jadi langkah
+// yang butuh database diulang beberapa kali sebelum dianggap gagal.
+async function run(label, command, args, attempts = 4) {
   console.log(`\n>>> ${label}`);
-  const result = spawnSync(command, args, { env: childEnv, stdio: 'inherit', shell: true });
-  if (result.status !== 0) throw new Error(`${label} gagal (kode ${result.status}).`);
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const result = spawnSync(command, args, { env: childEnv, stdio: 'inherit', shell: true });
+    if (result.status === 0) return;
+
+    if (attempt < attempts) {
+      console.log(`(percobaan ${attempt} gagal, mengulang dalam 3 detik)`);
+      await sleep(3000);
+    } else {
+      throw new Error(`${label} gagal setelah ${attempts} percobaan (kode ${result.status}).`);
+    }
+  }
+}
+
+async function withRetry(label, action, attempts = 4) {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await action();
+    } catch (error) {
+      if (attempt === attempts) throw error;
+      console.log(`(${label}: percobaan ${attempt} gagal, mengulang dalam 3 detik)`);
+      await sleep(3000);
+    }
+  }
 }
 
 async function recreateTestDatabase() {
-  const admin = new pg.Client({ connectionString: adminUrl.toString() });
-  await admin.connect();
-  await admin.query('drop database if exists portfolio_test with (force)');
-  await admin.query('create database portfolio_test');
-  await admin.end();
+  await withRetry('menyiapkan database tes', async () => {
+    const admin = new pg.Client({ connectionString: adminUrl.toString(), connectionTimeoutMillis: 15000 });
+
+    try {
+      await admin.connect();
+      await admin.query('drop database if exists portfolio_test with (force)');
+      await admin.query('create database portfolio_test');
+    } finally {
+      await admin.end().catch(() => {});
+    }
+  });
 }
 
 async function waitForServer() {
@@ -72,9 +105,9 @@ try {
   console.log('>>> Menyiapkan database tes (portfolio_test), database aslimu tidak disentuh');
   rmSync(UPLOAD_DIR, { recursive: true, force: true });
   await recreateTestDatabase();
-  run('Menerapkan migrasi', 'npx', ['prisma', 'migrate', 'deploy']);
-  run('Mengisi data awal', 'npx', ['tsx', 'prisma/seed.ts']);
-  run('Membangun aplikasi', 'npm', ['run', 'build']);
+  await run('Menerapkan migrasi', 'npx', ['prisma', 'migrate', 'deploy']);
+  await run('Mengisi data awal', 'npx', ['tsx', 'prisma/seed.ts']);
+  await run('Membangun aplikasi', 'npm', ['run', 'build'], 1);
 
   console.log(`\n>>> Menjalankan server tes di port ${PORT}`);
   server = spawn('npx', ['next', 'start', '-p', String(PORT), '-H', '127.0.0.1'], {
@@ -86,7 +119,7 @@ try {
 
   let allPassed = true;
 
-  for (const file of ['admin-e2e.mjs', 'content-e2e.mjs', 'projects-e2e.mjs', 'skills-e2e.mjs', 'uploads-e2e.mjs']) {
+  for (const file of ['api-e2e.mjs', 'admin-e2e.mjs', 'content-e2e.mjs', 'projects-e2e.mjs', 'skills-e2e.mjs', 'uploads-e2e.mjs']) {
     console.log(`\n>>> ${file}`);
     const result = spawnSync('node', [`scripts/e2e/${file}`], { env: childEnv, stdio: 'inherit' });
     if (result.status !== 0) allPassed = false;
