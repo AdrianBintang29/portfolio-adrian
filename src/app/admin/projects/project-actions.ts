@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { Prisma } from '@/generated/prisma/client';
 import { requireAdmin } from '@/lib/auth/session';
 import { getPrisma } from '@/lib/db/prisma';
+import { deleteUploadByUrl, readImageChange } from '@/lib/uploads';
 import { isHttpUrl, readText } from '@/lib/validation';
 
 export type ProjectFields = {
@@ -104,6 +105,17 @@ export async function createProject(
   if (error) return { error, values };
 
   const prisma = getPrisma();
+
+  const taken = await prisma.project.findUnique({ where: { slug: values.slug } });
+
+  if (taken) {
+    return { error: `Slug "${values.slug}" sudah dipakai project lain.`, values };
+  }
+
+  const image = await readImageChange(formData);
+
+  if (!image.ok) return { error: image.error, values };
+
   const last = await prisma.project.aggregate({ _max: { sortOrder: true } });
 
   try {
@@ -115,10 +127,13 @@ export async function createProject(
         stack: parseStack(values.stack),
         liveUrl: values.liveUrl || null,
         repoUrl: values.repoUrl || null,
+        imageUrl: image.changed ? image.url : null,
         sortOrder: (last._max.sortOrder ?? -1) + 1,
       },
     });
   } catch (caught) {
+    if (image.changed) await deleteUploadByUrl(image.url);
+
     if (isUniqueViolation(caught)) {
       return { error: `Slug "${values.slug}" sudah dipakai project lain.`, values };
     }
@@ -141,8 +156,25 @@ export async function updateProject(
 
   if (error) return { error, values };
 
+  const prisma = getPrisma();
+  const existing = await prisma.project.findUnique({ where: { id } });
+
+  if (!existing) return { error: 'Project tidak ditemukan.', values };
+
+  const taken = await prisma.project.findFirst({
+    where: { slug: values.slug, id: { not: id } },
+  });
+
+  if (taken) {
+    return { error: `Slug "${values.slug}" sudah dipakai project lain.`, values };
+  }
+
+  const image = await readImageChange(formData);
+
+  if (!image.ok) return { error: image.error, values };
+
   try {
-    await getPrisma().project.update({
+    await prisma.project.update({
       where: { id },
       data: {
         title: values.title,
@@ -151,14 +183,19 @@ export async function updateProject(
         stack: parseStack(values.stack),
         liveUrl: values.liveUrl || null,
         repoUrl: values.repoUrl || null,
+        ...(image.changed ? { imageUrl: image.url } : {}),
       },
     });
   } catch (caught) {
+    if (image.changed) await deleteUploadByUrl(image.url);
+
     if (isUniqueViolation(caught)) {
       return { error: `Slug "${values.slug}" sudah dipakai project lain.`, values };
     }
     throw caught;
   }
+
+  if (image.changed) await deleteUploadByUrl(existing.imageUrl);
 
   refreshPages();
   redirect('/admin/projects');
@@ -218,6 +255,12 @@ export async function moveProject(id: string, direction: 'up' | 'down') {
 export async function deleteProject(id: string) {
   await requireAdmin();
 
-  await getPrisma().project.deleteMany({ where: { id } });
+  const prisma = getPrisma();
+  const project = await prisma.project.findUnique({ where: { id } });
+
+  if (!project) return;
+
+  await prisma.project.delete({ where: { id } });
+  await deleteUploadByUrl(project.imageUrl);
   refreshPages();
 }

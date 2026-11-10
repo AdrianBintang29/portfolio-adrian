@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getProjects } from '@/lib/db/queries';
 
 export async function Projects() {
@@ -24,13 +25,26 @@ export async function Projects() {
               key={project.id}
               className="flex flex-col border border-navy/15 bg-white p-6 transition-colors hover:border-navy"
             >
-              <div
-                role="img"
-                aria-label={`Preview visual untuk ${project.title}`}
-                className="flex aspect-video w-full items-center justify-center border border-navy/10 bg-navy-soft text-xs font-semibold uppercase tracking-wider text-paper"
-              >
-                Preview Project
-              </div>
+              {project.imageUrl ? (
+                <div className="relative aspect-video w-full border border-navy/10">
+                  <Image
+                    src={project.imageUrl}
+                    alt={`Tampilan project ${project.title}`}
+                    fill
+                    unoptimized
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div
+                  role="img"
+                  aria-label={`Preview visual untuk ${project.title}`}
+                  className="flex aspect-video w-full items-center justify-center border border-navy/10 bg-navy-soft text-xs font-semibold uppercase tracking-wider text-paper"
+                >
+                  Preview Project
+                </div>
+              )}
 
               <div className="mt-6 flex flex-1 flex-col">
                 <div className="flex flex-wrap gap-2">

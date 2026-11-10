@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { ImageField } from '@/components/admin/ImageField';
 import { TextField } from '@/components/admin/TextField';
 import type { ProjectFields, ProjectState } from './project-actions';
 
@@ -9,10 +10,11 @@ const initialState: ProjectState = {};
 type ProjectFormProps = {
   action: (state: ProjectState, formData: FormData) => Promise<ProjectState>;
   defaults: ProjectFields;
+  imageUrl: string | null;
   submitLabel: string;
 };
 
-export function ProjectForm({ action, defaults, submitLabel }: ProjectFormProps) {
+export function ProjectForm({ action, defaults, imageUrl, submitLabel }: ProjectFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const current = state.values ?? defaults;
 
@@ -69,6 +71,8 @@ export function ProjectForm({ action, defaults, submitLabel }: ProjectFormProps)
         maxLength={200}
         hint="Boleh dikosongkan. Harus diawali https://"
       />
+
+      <ImageField label="Gambar project" currentUrl={imageUrl} alt="Gambar project saat ini" />
 
       {state.error && (
         <p role="alert" className="text-sm font-bold text-red-700">

@@ -1,7 +1,9 @@
 // Menjalankan semua tes ujung ke ujung dalam satu perintah.
 // Aman: memakai database terpisah "portfolio_test", tidak pernah menyentuh portfolio_db.
 import { spawn, spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import pg from 'pg';
 
 const PORT = 3200;
@@ -25,8 +27,11 @@ adminUrl.pathname = '/postgres';
 testUrl.pathname = '/portfolio_test';
 const TEST_DATABASE_URL = testUrl.toString();
 
+const UPLOAD_DIR = path.join(tmpdir(), 'portfolio-e2e-uploads');
+
 const childEnv = {
   ...process.env,
+  UPLOAD_DIR,
   DATABASE_URL: TEST_DATABASE_URL,
   E2E_DATABASE_URL: TEST_DATABASE_URL,
   SESSION_SECRET: env.SESSION_SECRET,
@@ -65,6 +70,7 @@ let exitCode = 1;
 
 try {
   console.log('>>> Menyiapkan database tes (portfolio_test), database aslimu tidak disentuh');
+  rmSync(UPLOAD_DIR, { recursive: true, force: true });
   await recreateTestDatabase();
   run('Menerapkan migrasi', 'npx', ['prisma', 'migrate', 'deploy']);
   run('Mengisi data awal', 'npx', ['tsx', 'prisma/seed.ts']);
@@ -80,7 +86,7 @@ try {
 
   let allPassed = true;
 
-  for (const file of ['admin-e2e.mjs', 'projects-e2e.mjs', 'skills-e2e.mjs']) {
+  for (const file of ['admin-e2e.mjs', 'projects-e2e.mjs', 'skills-e2e.mjs', 'uploads-e2e.mjs']) {
     console.log(`\n>>> ${file}`);
     const result = spawnSync('node', [`scripts/e2e/${file}`], { env: childEnv, stdio: 'inherit' });
     if (result.status !== 0) allPassed = false;

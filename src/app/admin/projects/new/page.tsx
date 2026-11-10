@@ -21,6 +21,7 @@ export default async function NewProjectPage() {
 
       <ProjectForm
         action={createProject}
+        imageUrl={null}
         submitLabel="Tambah project"
         defaults={{ title: '', slug: '', summary: '', stack: '', liveUrl: '', repoUrl: '' }}
       />

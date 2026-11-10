@@ -45,3 +45,6 @@ dev.log
 /backups/
 
 /src/generated/prisma
+
+# gambar unggahan admin (di VPS disimpan di Docker volume)
+/public/uploads/

@@ -28,6 +28,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
 
       <ProjectForm
         action={updateProject.bind(null, project.id)}
+        imageUrl={project.imageUrl}
         submitLabel="Simpan perubahan"
         defaults={{
           title: project.title,
