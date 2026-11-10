@@ -7,36 +7,39 @@ Tailwind CSS, Prisma, dan PostgreSQL. Dijalankan di VPS lewat Docker.
 
 ```text
 src/
-├── proxy.ts                  Satpam: mengarahkan /admin ke login bila tidak ada cookie sesi
+├── proxy.ts                   Satpam: mengarahkan /admin ke login bila tidak ada cookie sesi
 ├── app/
-│   ├── page.tsx              Halaman publik (merangkai komponen)
-│   ├── layout.tsx            Kerangka HTML semua halaman
-│   ├── globals.css           Warna dan gaya dasar
+│   ├── page.tsx               Halaman publik (merangkai komponen)
+│   ├── layout.tsx             Kerangka HTML semua halaman
+│   ├── globals.css            Warna dan gaya dasar
+│   ├── uploads/[name]/route.ts  Menyajikan gambar unggahan (hanya nama buatan server)
 │   └── admin/
-│       ├── page.tsx          Panel admin (wajib login)
-│       ├── logout-actions.ts Keluar dan keluar dari semua perangkat
-│       └── login/
-│           ├── page.tsx      Halaman /admin/login
-│           ├── login-form.tsx  Tampilan form
-│           └── login-action.ts Pemeriksaan password
-├── components/portfolio/     Bagian halaman publik: Header, Hero, Projects, About, Skills, Contact, Footer
+│       ├── page.tsx           Panel admin (wajib login)
+│       ├── logout-actions.ts  Keluar dan keluar dari semua perangkat
+│       ├── login/             Halaman, form, dan pemeriksaan password
+│       ├── profile/           Edit profil dan foto
+│       ├── projects/          Tambah, edit, urutkan, sembunyikan, hapus project
+│       └── skills/            Kelola skill dan kategorinya
+├── components/
+│   ├── portfolio/             Bagian halaman publik (Header, Hero, Projects, About, Skills, Contact, Footer)
+│   └── admin/                 Komponen bersama form admin (TextField, ImageField)
 └── lib/
-    ├── db/
-    │   ├── prisma.ts         Koneksi ke PostgreSQL
-    │   └── queries.ts        Pertanyaan ke database untuk halaman publik
-    └── auth/
-        ├── session.ts        Karcis sesi di database (buat, periksa, hapus)
-        └── session-token.ts  Segel cookie (tanpa database)
+    ├── db/                    prisma.ts (koneksi), queries.ts (data untuk halaman publik)
+    ├── auth/                  session.ts (karcis di database), session-token.ts (segel cookie)
+    ├── validation.ts          Pemeriksaan isian bersama
+    ├── image-type.ts          Deteksi jenis gambar, nama file aman, pembuangan EXIF (tanpa efek samping)
+    └── uploads.ts             Menyimpan, membaca, dan menghapus file di disk
 
 prisma/
-├── schema.prisma             Bentuk tabel
-├── migrations/               Riwayat perubahan tabel
-├── seed.ts                   Mengisi data awal
-├── seed-data.ts              Isi data awal (project dan skill contoh)
-└── create-admin.ts           Membuat atau mengganti password admin
+├── schema.prisma              Bentuk tabel
+├── migrations/                Riwayat perubahan tabel
+├── seed.ts, seed-data.ts      Data awal
+└── create-admin.ts            Membuat atau mengganti password admin
 
-scripts/                      Skrip bantu untuk VPS
-public/                       File statis (CV, foto)
+scripts/
+├── unit/                      Tes unit (logika murni)
+├── e2e/                       Tes ujung ke ujung di browser sungguhan
+└── vps-audit-now.sh           Skrip bantu untuk VPS
 ```
 
 ## Menjalankan di laptop
@@ -51,15 +54,24 @@ npm run dev
 
 Buka http://localhost:3000. Admin ada di http://localhost:3000/admin.
 
-## Perintah database
+## Perintah
 
 | Perintah | Fungsi |
 | --- | --- |
-| `npx prisma migrate dev --name nama_perubahan` | Terapkan perubahan `schema.prisma` ke database |
+| `npm run dev` | Server pengembangan |
+| `npm run build` | Build production |
+| `npm run lint` | Periksa gaya kode |
+| `npm run test:unit` | Tes unit logika gambar |
+| `npm run test:e2e` | Tes di browser sungguhan (memakai database `portfolio_test`, tidak menyentuh data aslimu) |
+| `npm test` | Keduanya |
+| `npx prisma migrate dev --name nama` | Terapkan perubahan `schema.prisma` |
 | `npx prisma generate` | Buat ulang client Prisma setelah schema berubah |
-| `npx prisma studio` | Lihat dan ubah isi tabel di browser |
-| `npm run db:seed` | Isi project dan skill contoh (aman dijalankan berulang) |
+| `npx prisma studio` | Lihat isi tabel di browser |
+| `npm run db:seed` | Isi data contoh (aman dijalankan berulang) |
 | `npm run db:create-admin` | Buat akun admin atau ganti passwordnya |
+
+`npm run test:e2e` butuh Google Chrome di `C:\Program Files\Google\Chrome`. Lokasi lain bisa diatur
+lewat variabel `CHROME_PATH`.
 
 ## Variabel lingkungan (`.env`, tidak masuk Git)
 
@@ -67,6 +79,14 @@ Buka http://localhost:3000. Admin ada di http://localhost:3000/admin.
 | --- | --- |
 | `DATABASE_URL` | Alamat koneksi PostgreSQL |
 | `SESSION_SECRET` | Rahasia penanda tangan cookie, minimal 32 karakter. Di VPS buat yang berbeda |
+| `UPLOAD_DIR` | (opsional) Folder gambar unggahan. Bawaan: `public/uploads`. Di VPS arahkan ke Docker volume |
+
+## Keamanan gambar unggahan
+
+- Jenis file ditentukan dari isinya, bukan nama atau Content-Type. Hanya JPEG, PNG, WebP. SVG ditolak karena bisa memuat skrip.
+- Maksimal 2 MB. Nama file diganti UUID acak. Alamat yang disajikan hanya yang berbentuk `<uuid>.jpg|png|webp`.
+- EXIF pada JPEG (lokasi GPS, model perangkat) dibuang saat unggah.
+- Mengganti atau menghapus data ikut menghapus file lamanya.
 
 ## Deployment
 
