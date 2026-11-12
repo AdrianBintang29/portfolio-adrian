@@ -23,7 +23,7 @@ const DEFAULT_ABOUT_TITLE = 'Gaming & Coding';
 async function resetProfile() {
   await db.query(
     `update "Profile" set "heroHeadline" = $1, "aboutTitle" = $2, "aboutBody" = $3,
-     name='Adrian Bintang', "fullName"='Muhammad Adrian Bintang Hariyanto', role='Fullstack Developer',
+     name='Adrian Bintang', "fullName"='Muhammad Adrian Bintang Hariyanto',
      bio='Bio awal.', email='adrianbintang29@gmail.com', "githubUrl"='https://github.com/AdrianBintang29'`,
     [DEFAULT_HEADLINE, DEFAULT_ABOUT_TITLE, 'Paragraf awal satu.\n\nParagraf awal dua.'],
   );

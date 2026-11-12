@@ -23,6 +23,15 @@ export async function getProjects() {
   });
 }
 
+export async function getExperiences() {
+  await connection();
+
+  return getPrisma().experience.findMany({
+    where: { published: true },
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+  });
+}
+
 export async function getSkillGroups() {
   await connection();
 

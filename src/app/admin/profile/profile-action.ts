@@ -10,7 +10,6 @@ import { isHttpUrl, readText } from '@/lib/validation';
 export type ProfileFields = {
   name: string;
   fullName: string;
-  role: string;
   bio: string;
   heroHeadline: string;
   aboutTitle: string;
@@ -28,7 +27,6 @@ export type ProfileState = {
 const MAX_LENGTH: Record<keyof ProfileFields, number> = {
   name: 80,
   fullName: 120,
-  role: 80,
   bio: 400,
   heroHeadline: 120,
   aboutTitle: 80,
@@ -43,7 +41,6 @@ function validate(values: ProfileFields): string | null {
   const required = [
     values.name,
     values.fullName,
-    values.role,
     values.bio,
     values.heroHeadline,
     values.aboutTitle,
@@ -52,7 +49,7 @@ function validate(values: ProfileFields): string | null {
   ];
 
   if (required.some((value) => !value)) {
-    return 'Nama, nama lengkap, role, bio, judul Hero, judul dan isi About, serta email wajib diisi.';
+    return 'Nama, nama lengkap, bio, judul Hero, judul dan isi About, serta email wajib diisi.';
   }
 
   for (const key of Object.keys(MAX_LENGTH) as (keyof ProfileFields)[]) {
@@ -81,7 +78,6 @@ export async function updateProfile(
   const values: ProfileFields = {
     name: readText(formData, 'name'),
     fullName: readText(formData, 'fullName'),
-    role: readText(formData, 'role'),
     bio: readText(formData, 'bio'),
     heroHeadline: readText(formData, 'heroHeadline'),
     aboutTitle: readText(formData, 'aboutTitle'),

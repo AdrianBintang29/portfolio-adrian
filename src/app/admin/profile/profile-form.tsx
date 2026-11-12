@@ -38,15 +38,6 @@ export function ProfileForm({
       />
 
       <TextField
-        name="role"
-        label="Role"
-        defaultValue={current.role}
-        maxLength={80}
-        required
-        hint="Tulisan kecil di atas judul besar."
-      />
-
-      <TextField
         name="heroHeadline"
         label="Judul besar di bagian atas"
         defaultValue={current.heroHeadline}

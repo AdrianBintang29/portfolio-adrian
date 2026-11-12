@@ -72,7 +72,6 @@ export const initialSkillGroups: SkillGroup[] = [
 export const initialProfile = {
   name: 'Adrian Bintang',
   fullName: 'Muhammad Adrian Bintang Hariyanto',
-  role: 'Fullstack Developer',
   bio: 'Saya belajar membangun aplikasi web dari interface, API, database, sampai deployment menggunakan Docker.',
   heroHeadline: 'Saya membangun website yang sederhana dan berguna.',
   aboutTitle: 'Gaming & Coding',

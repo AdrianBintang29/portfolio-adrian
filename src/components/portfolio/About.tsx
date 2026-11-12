@@ -21,10 +21,6 @@ export async function About() {
                 <p className="text-2xl font-extrabold text-ink">
                   {profile.name}
                 </p>
-                {/* Role dinamis profil dari database */}
-                <p className="text-sm font-medium text-muted">
-                  {profile.role}
-                </p>
               </div>
 
               {/* Bingkai Foto Profil Aspect 4:5 */}

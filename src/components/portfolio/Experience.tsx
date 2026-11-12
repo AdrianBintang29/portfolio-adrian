@@ -1,7 +1,11 @@
-import { experiences } from '@/lib/data/experience';
+import { getExperiences } from '@/lib/db/queries';
 import { Reveal } from './Reveal';
 
-export function Experience() {
+export async function Experience() {
+  const experiences = await getExperiences();
+
+  if (experiences.length === 0) return null;
+
   return (
     <section id="experience" className="relative bg-bg py-24 md:py-36 border-t border-line">
       <div className="mx-auto max-w-6xl px-6">

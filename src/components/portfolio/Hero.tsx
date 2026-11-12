@@ -6,7 +6,6 @@ import { HeroStarsCanvas } from './HeroStarsCanvas';
 interface HeroProps {
   profile: {
     name: string;
-    role: string;
     heroHeadline: string;
     bio: string;
   };

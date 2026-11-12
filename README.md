@@ -10,7 +10,7 @@ Live: https://portfolio-adrian.web.id (admin: `/admin/login`)
 - **Tema:** Warm Light (`#FAF8F5`) dengan aksen Burnt Orange (`#EA580C`). Font HarmonyOS Sans (lokal, `src/app/fonts/`).
 - **Hero:** tipografi asimetris "Hello, I am Adrian,", judul dan teks diambil dari database, kanvas bintang interaktif yang menolak kursor.
 - **Projects:** jalur geser horizontal, kartu setinggi sama, gambar tidak ter-zoom.
-- **Experience:** rekam jejak magang di Nyanhosting (data statis di `src/lib/data/experience.ts`).
+- **Experience:** rekam jejak kerja (saat ini magang di Nyanhosting), disimpan di database dan diedit dari `/admin/experience`.
 - **About:** narasi dan foto profil rasio 4:5, keduanya diedit dari admin.
 - **Skills:** dua baris geser dengan logo SVG teknologi.
 - **Contact:** tombol kontak, salin email dengan notifikasi, dan tautan GitHub.
@@ -34,6 +34,7 @@ src/
 │       ├── login/             Halaman, form, dan pemeriksaan password
 │       ├── profile/           Edit profil dan foto profil
 │       ├── projects/          Tambah, edit, urutkan, sembunyikan, hapus project
+│       ├── experience/        Tambah, edit, urutkan, sembunyikan, hapus pengalaman kerja
 │       └── skills/            Kelola skill dan kategorinya
 ├── components/
 │   ├── portfolio/             Bagian halaman publik:
@@ -41,7 +42,6 @@ src/
 │   │                          Experience, About, Skills, TechIcon, Contact, CopyEmailButton, Reveal, Footer
 │   └── admin/                 Komponen bersama form admin (TextField, ImageField)
 └── lib/
-    ├── data/                  Data statis (experience.ts)
     ├── db/                    prisma.ts (koneksi), queries.ts (data untuk halaman publik)
     ├── auth/                  session.ts (karcis di database), session-token.ts (segel cookie)
     ├── validation.ts          Pemeriksaan isian bersama

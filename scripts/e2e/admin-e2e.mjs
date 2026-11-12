@@ -21,7 +21,7 @@ async function resetData() {
   );
   await db.query(
     `update "Profile" set name='Adrian Bintang', "fullName"='Muhammad Adrian Bintang Hariyanto',
-     role='Fullstack Developer', bio='Bio awal untuk tes.', email='adrianbintang29@gmail.com',
+     bio='Bio awal untuk tes.', email='adrianbintang29@gmail.com',
      "githubUrl"='https://github.com/AdrianBintang29'`,
   );
 }
@@ -83,26 +83,25 @@ try {
   await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('a[href="/admin/profile"]')]);
   const filled = await page.evaluate(() => ({
     fullName: document.querySelector('#fullName')?.value,
-    role: document.querySelector('#role')?.value,
     email: document.querySelector('#email')?.value,
     bio: document.querySelector('#bio')?.value,
   }));
   check(
     '2c. Form terisi data profil dari database',
-    filled.fullName === 'Muhammad Adrian Bintang Hariyanto' && filled.role === 'Fullstack Developer' && filled.email === 'adrianbintang29@gmail.com',
+    filled.fullName === 'Muhammad Adrian Bintang Hariyanto' && filled.email === 'adrianbintang29@gmail.com',
     JSON.stringify(filled),
   );
 
-  // Tes 3: ubah role, simpan, halaman publik ikut berubah, database ikut berubah.
-  await setField(page, '#role', 'Tes Role');
+  // Tes 3: ubah judul Hero, simpan, halaman publik ikut berubah, database ikut berubah.
+  await setField(page, '#heroHeadline', 'Tes Judul Hero');
   await submitProfile(page);
   const savedText = await page.$eval('body', (b) => b.innerText);
   check('3a. Muncul tulisan "Tersimpan"', savedText.includes('Tersimpan'));
-  check('3b. Kolom role di database berubah', (await dbProfile()).role === 'Tes Role');
+  check('3b. Kolom heroHeadline di database berubah', (await dbProfile()).heroHeadline === 'Tes Judul Hero');
   const pub = await ctx.newPage();
   await pub.goto(`${BASE}/`, { waitUntil: 'networkidle0' });
   const pubText = await pub.$eval('body', (b) => b.innerText);
-  check('3c. Halaman publik menampilkan role baru', pubText.toUpperCase().includes('TES ROLE'));
+  check('3c. Halaman publik menampilkan judul Hero baru', pubText.toUpperCase().includes('TES JUDUL HERO'));
   await pub.close();
 
   // Tes 4: tautan GitHub berbahaya ditolak server (browser dilewati dengan menghapus tipe url).
@@ -131,11 +130,11 @@ try {
   const bioSetelahDitolak = await page.$eval('#bio', (el) => el.value);
   check('6. Bio yang diketik tetap ada setelah form ditolak', bioSetelahDitolak === bioBaru, bioSetelahDitolak);
 
-  // Tes 7: kembalikan role lewat form yang sama.
+  // Tes 7: kembalikan judul Hero lewat form yang sama.
   await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
-  await setField(page, '#role', 'Fullstack Developer');
+  await setField(page, '#heroHeadline', 'Saya membangun website yang sederhana dan berguna.');
   await submitProfile(page);
-  check('7. Role dikembalikan lewat form, database ikut kembali', (await dbProfile()).role === 'Fullstack Developer');
+  check('7. Judul Hero dikembalikan lewat form, database ikut kembali', (await dbProfile()).heroHeadline === 'Saya membangun website yang sederhana dan berguna.');
 
   // Tes 8: GitHub kosong menyimpan NULL dan tombol GitHub hilang di halaman publik.
   await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
@@ -151,10 +150,10 @@ try {
   // Tes 9: sesi dicabut dari server, form tidak bisa lagi dipakai menyimpan.
   await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
   await db.query('delete from "Session"');
-  await setField(page, '#role', 'DIRETAS TANPA LOGIN');
+  await setField(page, '#heroHeadline', 'DIRETAS TANPA LOGIN');
   await page.click('button[type=submit]');
   await new Promise((r) => setTimeout(r, 2500));
-  check('9a. Setelah sesi dicabut, penyimpanan DITOLAK di sisi server', (await dbProfile()).role !== 'DIRETAS TANPA LOGIN', (await dbProfile()).role);
+  check('9a. Setelah sesi dicabut, penyimpanan DITOLAK di sisi server', (await dbProfile()).heroHeadline !== 'DIRETAS TANPA LOGIN', (await dbProfile()).heroHeadline);
   check('9b. Pengguna dialihkan ke halaman login', page.url().includes('/admin/login'), page.url());
   await ctx.close();
 } finally {

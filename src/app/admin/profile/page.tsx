@@ -28,7 +28,6 @@ export default async function AdminProfilePage() {
         defaults={{
           name: profile.name,
           fullName: profile.fullName,
-          role: profile.role,
           bio: profile.bio,
           heroHeadline: profile.heroHeadline,
           aboutTitle: profile.aboutTitle,
