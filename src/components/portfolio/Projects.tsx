@@ -1,9 +1,9 @@
-import { getProjects } from '@/lib/db/queries';
+import { getProfile, getProjects } from '@/lib/db/queries';
 import { Reveal } from './Reveal';
 import { ProjectCard } from './ProjectCard';
 
 export async function Projects() {
-  const projects = await getProjects();
+  const [projects, profile] = await Promise.all([getProjects(), getProfile()]);
 
   return (
     <section id="projects" className="relative bg-bg py-24 md:py-36 border-t border-line overflow-hidden">
@@ -13,29 +13,31 @@ export async function Projects() {
           <div className="lg:sticky lg:top-32">
             <Reveal>
               <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl leading-[1.12]">
-                Take a look at what I&apos;ve created and be inspired by
+                {profile.projectsTitle}
               </h2>
             </Reveal>
 
             <Reveal delayMs={100}>
               <p className="mt-6 text-base leading-relaxed text-muted">
-                Koleksi sistem dan aplikasi yang saya bangun secara mandiri. Geser ke kanan untuk menjelajahi proyek lainnya.
+                {profile.projectsDescription}
               </p>
             </Reveal>
 
-            <Reveal delayMs={180}>
-              <div className="mt-8 flex items-center gap-3">
-                <a
-                  href="https://github.com/AdrianBintang29"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg border border-accent bg-transparent px-6 py-3 text-xs font-bold text-accent transition-all hover:bg-accent hover:text-white hover:shadow-[0_8px_20px_rgba(234,88,12,0.25)]"
-                >
-                  <span>Jelajahi Repositori</span>
-                  <span aria-hidden="true">↗</span>
-                </a>
-              </div>
-            </Reveal>
+            {profile.githubUrl && (
+              <Reveal delayMs={180}>
+                <div className="mt-8 flex items-center gap-3">
+                  <a
+                    href={profile.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg border border-accent bg-transparent px-6 py-3 text-xs font-bold text-accent transition-all hover:bg-accent hover:text-white hover:shadow-[0_8px_20px_rgba(234,88,12,0.25)]"
+                  >
+                    <span>Jelajahi Repositori</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </Reveal>
+            )}
 
             {/* Hint scroll horizontal */}
             <div className="mt-10 hidden lg:flex items-center gap-2 text-xs font-semibold text-muted">

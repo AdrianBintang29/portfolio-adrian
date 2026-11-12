@@ -14,6 +14,10 @@ export type ProfileFields = {
   heroHeadline: string;
   aboutTitle: string;
   aboutBody: string;
+  projectsTitle: string;
+  projectsDescription: string;
+  experienceDescription: string;
+  contactDescription: string;
   email: string;
   githubUrl: string;
 };
@@ -31,6 +35,10 @@ const MAX_LENGTH: Record<keyof ProfileFields, number> = {
   heroHeadline: 120,
   aboutTitle: 80,
   aboutBody: 2000,
+  projectsTitle: 120,
+  projectsDescription: 300,
+  experienceDescription: 300,
+  contactDescription: 300,
   email: 120,
   githubUrl: 200,
 };
@@ -45,11 +53,15 @@ function validate(values: ProfileFields): string | null {
     values.heroHeadline,
     values.aboutTitle,
     values.aboutBody,
+    values.projectsTitle,
+    values.projectsDescription,
+    values.experienceDescription,
+    values.contactDescription,
     values.email,
   ];
 
   if (required.some((value) => !value)) {
-    return 'Nama, nama lengkap, bio, judul Hero, judul dan isi About, serta email wajib diisi.';
+    return 'Nama, nama lengkap, bio, judul Hero, judul dan isi About, judul dan deskripsi tiap bagian, serta email wajib diisi.';
   }
 
   for (const key of Object.keys(MAX_LENGTH) as (keyof ProfileFields)[]) {
@@ -82,6 +94,10 @@ export async function updateProfile(
     heroHeadline: readText(formData, 'heroHeadline'),
     aboutTitle: readText(formData, 'aboutTitle'),
     aboutBody: normalizeMultiline(String(formData.get('aboutBody') ?? '')),
+    projectsTitle: readText(formData, 'projectsTitle'),
+    projectsDescription: readText(formData, 'projectsDescription'),
+    experienceDescription: readText(formData, 'experienceDescription'),
+    contactDescription: readText(formData, 'contactDescription'),
     email: readText(formData, 'email'),
     githubUrl: readText(formData, 'githubUrl'),
   };

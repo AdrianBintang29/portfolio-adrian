@@ -76,6 +76,45 @@ export function ProfileForm({
       />
 
       <TextField
+        name="projectsTitle"
+        label="Judul bagian Projects"
+        defaultValue={current.projectsTitle}
+        maxLength={120}
+        required
+        hint="Kalimat besar di sebelah kiri daftar project. Maksimal 120 karakter."
+      />
+
+      <TextField
+        name="projectsDescription"
+        label="Deskripsi bagian Projects"
+        defaultValue={current.projectsDescription}
+        maxLength={300}
+        required
+        multiline
+        hint="Paragraf di bawah judul Projects. Maksimal 300 karakter."
+      />
+
+      <TextField
+        name="experienceDescription"
+        label="Deskripsi bagian Experience"
+        defaultValue={current.experienceDescription}
+        maxLength={300}
+        required
+        multiline
+        hint="Paragraf di bawah judul Experience. Maksimal 300 karakter. Isi tiap pengalaman diedit di Kelola pengalaman."
+      />
+
+      <TextField
+        name="contactDescription"
+        label="Deskripsi bagian Contact"
+        defaultValue={current.contactDescription}
+        maxLength={300}
+        required
+        multiline
+        hint="Paragraf di bawah 'Let's talk about your project'. Maksimal 300 karakter."
+      />
+
+      <TextField
         name="email"
         label="Email"
         type="email"

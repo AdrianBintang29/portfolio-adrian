@@ -120,7 +120,80 @@ try {
     JSON.stringify({ gambar: pub5.injectedImages, skrip: pub5.injectedScripts, anakH1: pub5.h1Children }),
   );
 
-  // Tes 6: sesi dicabut, penyimpanan ditolak server.
+  // Tes 6: teks section Projects, Experience, dan Contact.
+  const sectionText = async () => {
+    const p = await ctx.newPage();
+    await p.goto(`${BASE}/`, { waitUntil: 'networkidle0' });
+    const info = await p.evaluate(() => ({
+      projectsTitle: document.querySelector('#projects h2')?.textContent ?? '',
+      projectsDesc: document.querySelector('#projects h2')?.parentElement?.parentElement?.querySelector('p')?.textContent ?? '',
+      experienceDesc: document.querySelector('#experience h2 + p')?.textContent ?? '',
+      contactDesc: document.querySelector('#contact h2 + p')?.textContent ?? '',
+      repoLink: [...document.querySelectorAll('#projects a')].find((a) => a.textContent.includes('Jelajahi Repositori'))?.getAttribute('href') ?? null,
+      labels: ['#experience', '#contact', '#skills', '#about'].map((id) => document.querySelector(`${id} span`)?.textContent?.trim() ?? ''),
+    }));
+    await p.close();
+    return info;
+  };
+
+  const DEFAULT_PROJECTS_TITLE = "Take a look at what I've created and be inspired by";
+  const def = await sectionText();
+  report.check('6a. Bawaan: judul Projects tampil seperti sebelumnya', def.projectsTitle === DEFAULT_PROJECTS_TITLE, def.projectsTitle);
+  report.check('6b. Bawaan: deskripsi Projects, Experience, Contact terisi', Boolean(def.projectsDesc) && Boolean(def.experienceDesc) && Boolean(def.contactDesc));
+  report.check('6c. Label kecil berupa satu kata', JSON.stringify(def.labels) === JSON.stringify(['Experience', 'Contact', 'Skills', 'About']), JSON.stringify(def.labels));
+
+  await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  const formDefaults = await page.evaluate(() => ({
+    t: document.querySelector('#projectsTitle')?.value,
+    pd: document.querySelector('#projectsDescription')?.value,
+    ed: document.querySelector('#experienceDescription')?.value,
+    cd: document.querySelector('#contactDescription')?.value,
+  }));
+  report.check('6d. Form admin punya empat kolom teks section dan terisi', Object.values(formDefaults).every((v) => typeof v === 'string' && v.length > 0), JSON.stringify(formDefaults));
+
+  await disableBrowserValidation(page);
+  await setField(page, '#heroHeadline', 'Judul sah');
+  await setField(page, '#aboutTitle', 'Judul biasa');
+  await setField(page, '#aboutBody', 'Isi biasa.');
+  await setField(page, '#projectsTitle', 'Karya saya');
+  await setField(page, '#projectsDescription', 'Beberapa project yang pernah saya kerjakan.');
+  await setField(page, '#experienceDescription', 'Tempat saya pernah bekerja.');
+  await setField(page, '#contactDescription', 'Hubungi saya lewat email.');
+  await submitForm(page);
+  const savedSec = await profile();
+  report.check(
+    '6e. Empat teks section tersimpan di database',
+    savedSec.projectsTitle === 'Karya saya' && savedSec.projectsDescription === 'Beberapa project yang pernah saya kerjakan.' && savedSec.experienceDescription === 'Tempat saya pernah bekerja.' && savedSec.contactDescription === 'Hubungi saya lewat email.',
+  );
+  const edited = await sectionText();
+  report.check('6f. Judul Projects di halaman publik berubah', edited.projectsTitle === 'Karya saya', edited.projectsTitle);
+  report.check('6g. Deskripsi Projects di halaman publik berubah', edited.projectsDesc === 'Beberapa project yang pernah saya kerjakan.', edited.projectsDesc);
+  report.check('6h. Deskripsi Experience di halaman publik berubah', edited.experienceDesc === 'Tempat saya pernah bekerja.', edited.experienceDesc);
+  report.check('6i. Deskripsi Contact di halaman publik berubah', edited.contactDesc === 'Hubungi saya lewat email.', edited.contactDesc);
+  report.check('6j. Tombol repositori memakai tautan GitHub dari profil', edited.repoLink === 'https://github.com/AdrianBintang29', String(edited.repoLink));
+
+  await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  await disableBrowserValidation(page);
+  await setField(page, '#projectsTitle', 'x'.repeat(121));
+  await submitForm(page);
+  report.check('6k. Judul Projects terlalu panjang ditolak', (await profile()).projectsTitle === 'Karya saya');
+  await setField(page, '#projectsTitle', 'Karya saya');
+  await setField(page, '#contactDescription', 'y'.repeat(301));
+  await submitForm(page);
+  report.check('6l. Deskripsi Contact terlalu panjang ditolak', (await profile()).contactDescription === 'Hubungi saya lewat email.');
+  await setField(page, '#contactDescription', 'Hubungi saya lewat email.');
+  await setField(page, '#experienceDescription', '');
+  await submitForm(page);
+  report.check('6m. Deskripsi Experience kosong ditolak', (await profile()).experienceDescription === 'Tempat saya pernah bekerja.');
+
+  await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
+  await disableBrowserValidation(page);
+  await setField(page, '#githubUrl', '');
+  await submitForm(page);
+  const noGit = await sectionText();
+  report.check('6n. GitHub dikosongkan, tombol repositori hilang', noGit.repoLink === null, String(noGit.repoLink));
+
+  // Tes 7: sesi dicabut, penyimpanan ditolak server.
   await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
   await db.query('delete from "Session"');
   await setField(page, '#heroHeadline', 'DIRETAS TANPA LOGIN');

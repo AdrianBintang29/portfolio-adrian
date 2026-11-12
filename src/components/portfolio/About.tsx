@@ -16,7 +16,7 @@ export async function About() {
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-bold uppercase tracking-widest text-accent">
-                  About Me
+                  About
                 </span>
                 <p className="text-2xl font-extrabold text-ink">
                   {profile.name}

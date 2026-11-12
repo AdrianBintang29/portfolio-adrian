@@ -12,7 +12,7 @@ export async function Skills() {
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-accent">
-              Skills & Capabilities
+              Skills
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink sm:text-5xl md:text-6xl">
               My tech stack

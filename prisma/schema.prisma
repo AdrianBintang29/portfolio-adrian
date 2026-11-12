@@ -38,6 +38,11 @@ model Profile {
   heroHeadline String   @default("Saya membangun website yang sederhana dan berguna.")
   aboutTitle   String   @default("Belajar dengan membangun project nyata.")
   aboutBody    String   @default("Ceritakan tentang dirimu di sini.")
+  // Judul dan paragraf pembuka section Projects, Experience, dan Contact.
+  projectsTitle         String @default("Take a look at what I've created and be inspired by")
+  projectsDescription   String @default("Koleksi sistem dan aplikasi yang saya bangun secara mandiri. Geser ke kanan untuk menjelajahi proyek lainnya.")
+  experienceDescription String @default("Rekam jejak pengalaman kerja nyata dalam rekayasa perangkat lunak, integrasi backend API, dan pemeliharaan infrastruktur hosting.")
+  contactDescription    String @default("Saya selalu terbuka untuk peluang magang, kolaborasi software engineering, maupun diskusi teknis seputar arsitektur web dan server mandiri.")
   origin       String?
   email        String
   githubUrl    String?

@@ -1,8 +1,8 @@
-import { getExperiences } from '@/lib/db/queries';
+import { getExperiences, getProfile } from '@/lib/db/queries';
 import { Reveal } from './Reveal';
 
 export async function Experience() {
-  const experiences = await getExperiences();
+  const [experiences, profile] = await Promise.all([getExperiences(), getProfile()]);
 
   if (experiences.length === 0) return null;
 
@@ -13,13 +13,13 @@ export async function Experience() {
         <Reveal>
           <div className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-widest text-accent">
-              Career & Experience
+              Experience
             </span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl">
               Work Experience
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted">
-              Rekam jejak pengalaman kerja nyata dalam rekayasa perangkat lunak, integrasi backend API, dan pemeliharaan infrastruktur hosting.
+              {profile.experienceDescription}
             </p>
           </div>
         </Reveal>

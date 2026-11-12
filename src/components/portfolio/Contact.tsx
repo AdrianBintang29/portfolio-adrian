@@ -13,14 +13,14 @@ export async function Contact() {
           <Reveal>
             <div className="max-w-xl">
               <span className="text-xs font-bold uppercase tracking-widest text-accent">
-                Kolaborasi & Rekayasa
+                Contact
               </span>
               <h2 className="mt-3 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl md:text-6xl leading-[1.08]">
                 Let&apos;s talk about<br />
                 your project
               </h2>
               <p className="mt-5 text-base leading-relaxed text-muted">
-                Saya selalu terbuka untuk peluang magang, kolaborasi software engineering, maupun diskusi teknis seputar arsitektur web dan server mandiri.
+                {profile.contactDescription}
               </p>
             </div>
           </Reveal>

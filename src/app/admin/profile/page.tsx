@@ -32,6 +32,10 @@ export default async function AdminProfilePage() {
           heroHeadline: profile.heroHeadline,
           aboutTitle: profile.aboutTitle,
           aboutBody: profile.aboutBody,
+          projectsTitle: profile.projectsTitle,
+          projectsDescription: profile.projectsDescription,
+          experienceDescription: profile.experienceDescription,
+          contactDescription: profile.contactDescription,
           email: profile.email,
           githubUrl: profile.githubUrl ?? '',
         }}
