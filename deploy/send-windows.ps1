@@ -253,7 +253,12 @@ else
   exit 3
 fi
 "@
-  $r = Invoke-Remote $assemble 300
+  # Skrip multi-baris tidak dikirim mentah lewat argumen ssh.exe: Windows memberi akhir baris CRLF dan
+  # mengacaukan tanda kutip, sehingga bash di VPS bisa menjalankan perintah yang salah bentuk (cat tanpa
+  # nama file menunggu input selamanya). Dikirim sebagai base64 dengan akhir baris LF, lalu dijalankan bash.
+  $assembleLf = $assemble -replace "`r`n", "`n"
+  $assembleB64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($assembleLf))
+  $r = Invoke-Remote "echo $assembleB64 | base64 -d | bash" 300
   if ($r.Out -match 'SEGEL-COCOK') {
     Write-Host ""
     Write-Host "SELESAI: file di VPS identik dengan yang di laptop. ($([math]::Round($sw.Elapsed.TotalSeconds)) detik)" -ForegroundColor Green
