@@ -102,9 +102,9 @@ try {
   const { page, ctx } = await newSession(browser);
   await login(page);
 
-  // Tes 0: profil tidak lagi memiliki kolom foto.
+  // Tes 0: form profil memiliki kolom unggah foto profil.
   await page.goto(`${BASE}/admin/profile`, { waitUntil: 'networkidle0' });
-  report.check('0. Form profil tidak punya kolom unggah foto', !(await page.$('input[type=file]')));
+  report.check('0. Form profil memiliki kolom unggah foto', Boolean(await page.$('input[type=file]')));
 
   // Tes 1: unggah gambar project PNG yang valid.
   await page.goto(editUrl, { waitUntil: 'networkidle0' });

@@ -1,43 +1,56 @@
 import { getProfile } from '@/lib/db/queries';
+import { Reveal } from './Reveal';
+import { CopyEmailButton } from './CopyEmailButton';
 
 export async function Contact() {
   const profile = await getProfile();
 
   return (
-    <section id="contact" className="border-t border-gray-blue/20 bg-paper py-20 md:py-28">
+    <section id="contact" className="relative bg-bg py-24 md:py-36 border-t border-line">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="border border-navy/15 bg-white p-8 md:p-14">
-          <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-gray-blue">
-              Get in Touch me
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy md:text-5xl">
-              Mau ngobrol bareng?
-            </h2>
-            <p className="mt-4 text-base leading-7 text-gray-blue">
-              Saya selalu terbuka untuk peluang magang, kolaborasi teknis, maupun diskusi seputar pengembangan web dan deployment server. Silakan hubungi saya melalui jalur di bawah ini.
-            </p>
-          </div>
+        <div className="flex flex-col justify-between gap-10 md:flex-row md:items-center">
+          {/* Judul Besar Kiri */}
+          <Reveal>
+            <div className="max-w-xl">
+              <span className="text-xs font-bold uppercase tracking-widest text-accent">
+                Kolaborasi & Rekayasa
+              </span>
+              <h2 className="mt-3 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl md:text-6xl leading-[1.08]">
+                Let&apos;s talk about<br />
+                your project
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-muted">
+                Saya selalu terbuka untuk peluang magang, kolaborasi software engineering, maupun diskusi teknis seputar arsitektur web dan server mandiri.
+              </p>
+            </div>
+          </Reveal>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a
-              href={`mailto:${profile.email}`}
-              className="bg-yellow px-6 py-3.5 text-sm font-bold text-navy transition-colors hover:bg-navy hover:text-paper"
-            >
-              Kirim Email
-            </a>
-
-            {profile.githubUrl && (
+          {/* Tombol Aksi Kanan Lengkap ala Abyasa */}
+          <Reveal delayMs={120}>
+            <div className="flex flex-wrap items-center gap-4">
               <a
-                href={profile.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="border border-navy px-6 py-3.5 text-sm font-bold text-navy transition-colors hover:bg-navy hover:text-paper"
+                href={`mailto:${profile.email}`}
+                className="inline-flex items-center justify-center rounded-lg border-2 border-accent bg-accent px-8 py-4 text-sm font-bold text-white shadow-md transition-all hover:bg-accent-hover hover:shadow-[0_8px_20px_rgba(234,88,12,0.3)]"
               >
-                Lihat GitHub ↗
+                <span>Contact me</span>
+                <span aria-hidden="true" className="ml-2">↗</span>
               </a>
-            )}
-          </div>
+
+              {/* Fitur Copy Email instan */}
+              <CopyEmailButton email={profile.email} />
+
+              {profile.githubUrl && (
+                <a
+                  href={profile.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-lg border border-line bg-surface px-6 py-4 text-sm font-bold text-ink shadow-xs transition-all hover:border-accent hover:text-accent"
+                >
+                  <span>Lihat GitHub ↗</span>
+                </a>
+              )}
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

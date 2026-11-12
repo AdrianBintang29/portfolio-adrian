@@ -1,24 +1,30 @@
+import { getProfile } from '@/lib/db/queries';
+import { About } from '@/components/portfolio/About';
+import { Contact } from '@/components/portfolio/Contact';
+import { Experience } from '@/components/portfolio/Experience';
+import { Footer } from '@/components/portfolio/Footer';
 import { Header } from '@/components/portfolio/Header';
 import { Hero } from '@/components/portfolio/Hero';
 import { Projects } from '@/components/portfolio/Projects';
-import { About } from '@/components/portfolio/About';
 import { Skills } from '@/components/portfolio/Skills';
-import { Contact } from '@/components/portfolio/Contact';
-import { Footer } from '@/components/portfolio/Footer';
 
-export default function PortfolioPage() {
+export default async function PortfolioPage() {
+  const profile = await getProfile();
+
   return (
-    <>
+    <div className="relative min-h-[100dvh] bg-bg text-ink">
       <Header />
 
       <main id="top">
-        <Hero />
+        <Hero profile={profile} />
         <Projects />
+        <Experience />
         <About />
         <Skills />
         <Contact />
-        <Footer />
       </main>
-    </>
+
+      <Footer />
+    </div>
   );
 }

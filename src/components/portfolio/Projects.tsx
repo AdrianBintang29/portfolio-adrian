@@ -1,96 +1,57 @@
-import Image from 'next/image';
 import { getProjects } from '@/lib/db/queries';
+import { Reveal } from './Reveal';
+import { ProjectCard } from './ProjectCard';
 
 export async function Projects() {
   const projects = await getProjects();
 
   return (
-    <section id="projects" className="border-t border-gray-blue/20 bg-paper py-20 md:py-28">
+    <section id="projects" className="relative bg-bg py-24 md:py-36 border-t border-line overflow-hidden">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="max-w-2xl">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-gray-blue">
-            Selected Work
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy md:text-5xl">
-            Project Pilihan
-          </h2>
-          <p className="mt-4 text-base leading-7 text-gray-blue">
-            Kumpulan project nyata yang saya bangun untuk mempelajari siklus hidup software dari rancangan interface, backend API, hingga deployment server.
-          </p>
-        </div>
+        <div className="grid gap-12 lg:grid-cols-[380px_1fr] lg:items-start">
+          {/* Kolom Kiri: Statement Header ala Gambar 3 */}
+          <div className="lg:sticky lg:top-32">
+            <Reveal>
+              <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl md:text-5xl leading-[1.12]">
+                Take a look at what I&apos;ve created and be inspired by
+              </h2>
+            </Reveal>
 
-        <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <article
-              key={project.id}
-              className="flex flex-col border border-navy/15 bg-white p-6 transition-colors hover:border-navy"
-            >
-              {project.imageUrl ? (
-                <div className="relative aspect-video w-full border border-navy/10">
-                  <Image
-                    src={project.imageUrl}
-                    alt={`Tampilan project ${project.title}`}
-                    fill
-                    unoptimized
-                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div
-                  role="img"
-                  aria-label={`Preview visual untuk ${project.title}`}
-                  className="flex aspect-video w-full items-center justify-center border border-navy/10 bg-navy-soft text-xs font-semibold uppercase tracking-wider text-paper"
+            <Reveal delayMs={100}>
+              <p className="mt-6 text-base leading-relaxed text-muted">
+                Koleksi sistem dan aplikasi yang saya bangun secara mandiri. Geser ke kanan untuk menjelajahi proyek lainnya.
+              </p>
+            </Reveal>
+
+            <Reveal delayMs={180}>
+              <div className="mt-8 flex items-center gap-3">
+                <a
+                  href="https://github.com/AdrianBintang29"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg border border-accent bg-transparent px-6 py-3 text-xs font-bold text-accent transition-all hover:bg-accent hover:text-white hover:shadow-[0_8px_20px_rgba(234,88,12,0.25)]"
                 >
-                  Preview Project
-                </div>
-              )}
-
-              <div className="mt-6 flex flex-1 flex-col">
-                <div className="flex flex-wrap gap-2">
-                  {project.stack.map((item) => (
-                    <span
-                      key={item}
-                      className="bg-navy/5 px-2.5 py-1 text-xs font-semibold text-gray-blue"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-
-                <h3 className="mt-4 text-xl font-bold text-navy">
-                  {project.title}
-                </h3>
-
-                <p className="mt-3 flex-1 text-sm leading-6 text-gray-blue">
-                  {project.summary}
-                </p>
-
-                <div className="mt-6 flex items-center gap-4 border-t border-navy/10 pt-4 text-sm font-bold">
-                  {project.liveUrl && (
-                    <a
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-navy transition-colors hover:text-yellow hover:underline"
-                    >
-                      Live Demo ↗
-                    </a>
-                  )}
-                  {project.repoUrl && (
-                    <a
-                      href={project.repoUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-gray-blue transition-colors hover:text-navy hover:underline"
-                    >
-                      Source Code ↗
-                    </a>
-                  )}
-                </div>
+                  <span>Jelajahi Repositori</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
               </div>
-            </article>
-          ))}
+            </Reveal>
+
+            {/* Hint scroll horizontal */}
+            <div className="mt-10 hidden lg:flex items-center gap-2 text-xs font-semibold text-muted">
+              <span>Scroll horizontal</span>
+              <span className="text-accent font-bold" aria-hidden="true">&rarr;</span>
+            </div>
+          </div>
+
+          {/* Kolom Kanan: Horizontal Scroll Track SEJAJAR SEMPURNA (items-stretch) */}
+          <div className="overflow-hidden">
+            <div className="horizontal-scroll flex items-stretch gap-5 sm:gap-6 overflow-x-auto pb-8 pt-2 snap-x snap-mandatory -mx-6 px-6 lg:mx-0 lg:px-0">
+              {projects.map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
