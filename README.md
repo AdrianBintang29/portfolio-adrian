@@ -3,6 +3,19 @@
 Website portfolio dengan admin panel. Dibangun dengan Next.js (App Router), TypeScript,
 Tailwind CSS, Prisma, dan PostgreSQL. Dijalankan di VPS lewat Docker.
 
+Live: https://portfolio-adrian.web.id (admin: `/admin/login`)
+
+## Tampilan
+
+- **Tema:** Warm Light (`#FAF8F5`) dengan aksen Burnt Orange (`#EA580C`). Font HarmonyOS Sans (lokal, `src/app/fonts/`).
+- **Hero:** tipografi asimetris "Hello, I am Adrian,", judul dan teks diambil dari database, kanvas bintang interaktif yang menolak kursor.
+- **Projects:** jalur geser horizontal, kartu setinggi sama, gambar tidak ter-zoom.
+- **Experience:** rekam jejak magang di Nyanhosting (data statis di `src/lib/data/experience.ts`).
+- **About:** narasi dan foto profil rasio 4:5, keduanya diedit dari admin.
+- **Skills:** dua baris geser dengan logo SVG teknologi.
+- **Contact:** tombol kontak, salin email dengan notifikasi, dan tautan GitHub.
+- **Navbar:** ScrollSpy, menu menyala oranye mengikuti bagian yang sedang dilihat.
+
 ## Peta folder
 
 ```text
@@ -10,23 +23,29 @@ src/
 ├── proxy.ts                   Satpam: mengarahkan /admin ke login bila tidak ada cookie sesi
 ├── app/
 │   ├── page.tsx               Halaman publik (merangkai komponen)
-│   ├── layout.tsx             Kerangka HTML semua halaman
+│   ├── layout.tsx             Kerangka HTML semua halaman dan pemuatan font
 │   ├── globals.css            Warna dan gaya dasar
+│   ├── fonts/                 File font HarmonyOS Sans
 │   ├── uploads/[name]/route.ts  Menyajikan gambar unggahan (hanya nama buatan server)
 │   └── admin/
+│       ├── layout.tsx         Kerangka halaman admin
 │       ├── page.tsx           Panel admin (wajib login)
 │       ├── logout-actions.ts  Keluar dan keluar dari semua perangkat
 │       ├── login/             Halaman, form, dan pemeriksaan password
-│       ├── profile/           Edit profil dan foto
+│       ├── profile/           Edit profil dan foto profil
 │       ├── projects/          Tambah, edit, urutkan, sembunyikan, hapus project
 │       └── skills/            Kelola skill dan kategorinya
 ├── components/
-│   ├── portfolio/             Bagian halaman publik (Header, Hero, Projects, About, Skills, Contact, Footer)
+│   ├── portfolio/             Bagian halaman publik:
+│   │                          Header, HeaderNav (ScrollSpy), Hero, HeroStarsCanvas, Projects, ProjectCard,
+│   │                          Experience, About, Skills, TechIcon, Contact, CopyEmailButton, Reveal, Footer
 │   └── admin/                 Komponen bersama form admin (TextField, ImageField)
 └── lib/
+    ├── data/                  Data statis (experience.ts)
     ├── db/                    prisma.ts (koneksi), queries.ts (data untuk halaman publik)
     ├── auth/                  session.ts (karcis di database), session-token.ts (segel cookie)
     ├── validation.ts          Pemeriksaan isian bersama
+    ├── text.ts                Bantuan teks
     ├── image-type.ts          Deteksi jenis gambar, nama file aman, pembuangan EXIF (tanpa efek samping)
     └── uploads.ts             Menyimpan, membaca, dan menghapus file di disk
 
@@ -40,6 +59,13 @@ scripts/
 ├── unit/                      Tes unit (logika murni)
 ├── e2e/                       Tes ujung ke ujung di browser sungguhan
 └── vps-audit-now.sh           Skrip bantu untuk VPS
+
+deploy/
+├── pack.sh, send.sh           Bungkus dan kirim semua image (penerapan pertama)
+├── send-windows.ps1           Pengirim bertahap dari Windows
+├── vps-deploy.sh              Penerapan lengkap di VPS
+├── pack-app.sh                Bungkus HANYA image aplikasi (sekitar 90 MB) untuk pembaruan tampilan
+└── vps-update-app.sh          Di VPS: ganti container portfolio saja, tanpa menyentuh database, rollback otomatis jika tidak sehat
 ```
 
 ## Menjalankan di laptop
@@ -90,4 +116,13 @@ lewat variabel `CHROME_PATH`.
 
 ## Deployment
 
-Lihat `DEPLOYMENT.md`.
+Alur: `Browser -> Cloudflare HTTPS -> Cloudflare Tunnel -> Nginx Proxy Manager -> portfolio:3000 -> postgres:5432`.
+
+Memperbarui tampilan saja (database dan upload tidak tersentuh):
+
+```bash
+bash deploy/pack-app.sh                 # laptop (Ubuntu WSL): bangun image portfolio-adrian:1.1
+bash /opt/portfolio/vps-update-app.sh   # VPS: ganti container portfolio, rollback otomatis bila gagal
+```
+
+Detail lengkap, termasuk aturan emas VPS 1 GB, ada di `DEPLOYMENT.md`.

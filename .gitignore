@@ -51,3 +51,8 @@ dev.log
 
 # hasil kerja alat desain (screenshot, laporan)
 /.taste-skill/
+/.impeccable/
+
+# catatan lokal alat bantu AI, bukan bagian aplikasi
+/PRODUCT.md
+/AGENTS.md
