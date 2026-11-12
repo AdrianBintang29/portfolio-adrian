@@ -27,9 +27,17 @@ docker save "$APP_TAG" | gzip > "$OUT"
 gzip -t "$OUT"
 ( cd /tmp && sha256sum "$(basename "$OUT")" > "$(basename "$OUT").sha256" )
 
+# Folder prisma (migrasi database) dibungkus dari isi commit, bukan dari folder kerja, supaya akhir baris
+# tetap LF dan checksum migrasi yang sudah terpasang di VPS tidak berubah. Ukurannya hanya beberapa KB.
+# Dipakai oleh deploy/vps-update-with-migration.sh bersama image migrator yang sudah ada di VPS.
+PRISMA_OUT="/tmp/portfolio-prisma.tar.gz"
+git archive --format=tar.gz -o "$PRISMA_OUT" HEAD prisma prisma.config.ts
+( cd /tmp && sha256sum "$(basename "$PRISMA_OUT")" > "$(basename "$PRISMA_OUT").sha256" )
+
 mkdir -p "$SHIP"
-cp "$OUT" "$OUT.sha256" "$SHIP/"
+cp "$OUT" "$OUT.sha256" "$PRISMA_OUT" "$PRISMA_OUT.sha256" "$SHIP/"
 
 echo
 echo "Selesai. Siap dikirim dari PowerShell (folder portfolio-ship):"
-ls -lh "$SHIP/portfolio-app.tar.gz" "$SHIP/portfolio-app.tar.gz.sha256"
+ls -lh "$SHIP/portfolio-app.tar.gz" "$SHIP/portfolio-app.tar.gz.sha256" \
+       "$SHIP/portfolio-prisma.tar.gz" "$SHIP/portfolio-prisma.tar.gz.sha256"
