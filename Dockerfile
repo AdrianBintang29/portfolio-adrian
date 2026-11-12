@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 # --dns-result-order=ipv4first: sebagian jaringan (termasuk laptop pengembangan) punya IPv6 yang
 # tidak berfungsi. Tanpa ini, npm menunggu IPv6 sampai habis waktu untuk setiap paket.
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --no-audit --no-fund
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --no-audit --no-fund --fetch-timeout=45000 --fetch-retries=6 --fetch-retry-mintimeout=1000 --maxsockets=4
 
 # Tahap 2 (builder): ubah source menjadi output production standalone.
 FROM base AS builder
@@ -35,7 +35,7 @@ FROM base AS migrator
 WORKDIR /app
 ENV NODE_ENV=production
 COPY deploy/migrator/package.json deploy/migrator/package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --no-audit --no-fund
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --no-audit --no-fund --fetch-timeout=45000 --fetch-retries=6 --fetch-retry-mintimeout=1000 --maxsockets=4
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 # Skrip seed dan create-admin memakai client Prisma hasil generate dari tahap builder.
