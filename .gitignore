@@ -56,3 +56,8 @@ dev.log
 # catatan lokal alat bantu AI, bukan bagian aplikasi
 /PRODUCT.md
 /AGENTS.md
+
+# tooling lokal, tidak perlu di GitHub
+/.agents/
+/.vscode/
+/CLAUDE.md
